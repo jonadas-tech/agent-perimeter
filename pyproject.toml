@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-perimeter"
+version = "0.1.0"
+description = "100% passive external attack surface scanner for agentic brand impersonation, MCP supply-chain exposure, and DNS-AID/OAuth perimeter hygiene."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+authors = [
+    { name = "Jonadas Techio" },
+]
+keywords = [
+    "mcp",
+    "agentic-security",
+    "owasp",
+    "easm",
+    "dns-aid",
+    "oauth",
+    "supply-chain-security",
+    "passive-recon",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+dependencies = []
+
+[project.scripts]
+agent-perimeter = "agent_perimeter.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_perimeter"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

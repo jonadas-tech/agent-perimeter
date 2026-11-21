@@ -1,0 +1,16 @@
+AGENTS.md
+GEMINI.md
+HANDOFF.md
+STATUS.md
+phase0/
+phase1_private/
+phase2_drafts/
+scripts/
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.DS_Store
