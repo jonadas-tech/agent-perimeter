@@ -18,6 +18,7 @@ from .dns_ct import (
 from .http_client import PoliteHttpClient
 from .models import AuditReport, BrandTarget
 from .scoring import score_audit, sort_findings
+from .static_audit import inspect_npm_package_static, inspect_pypi_package_static
 from .vector1_supply_chain import probe_vector1
 from .vector2_perimeter import _extract_declared_endpoints, _parse_json_discovery, probe_vector2
 from .vector3_lookalike import probe_vector3
@@ -93,11 +94,51 @@ def _peek_well_known_siblings(
     return siblings
 
 
+def _run_optional_static_package_audit(
+    client: PoliteHttpClient,
+    target: BrandTarget,
+    v1_data: Dict[str, Any],
+    max_packages: int = 10,
+) -> Dict[str, Any]:
+    """Passively inspect top unverified npm/PyPI packages strictly in memory (zero execution)."""
+    candidates: List[tuple[str, str]] = []
+    for p in (v1_data.get("npm") or {}).get("packages") or []:
+        if not p.get("official_anchored") and p.get("name"):
+            candidates.append(("npm", str(p["name"])))
+    for p in (v1_data.get("pypi") or {}).get("packages") or []:
+        if not p.get("official_anchored") and p.get("name"):
+            candidates.append(("pypi", str(p["name"])))
+    chosen = candidates[:max_packages]
+    inspected: List[Dict[str, Any]] = []
+    for reg, name in chosen:
+        if reg == "npm":
+            inspected.append(inspect_npm_package_static(client, name, target.brand))
+        else:
+            inspected.append(inspect_pypi_package_static(client, name, target.brand))
+    ok_rows = [r for r in inspected if r.get("ok")]
+    return {
+        "enabled": True,
+        "inspected_count": len(ok_rows),
+        "attempted_count": len(chosen),
+        "unverified_remote_postinstall_count": sum(
+            1 for r in ok_rows if (r.get("signals") or {}).get("unverified_remote_postinstall")
+        ),
+        "dormant_placeholder_stub_count": sum(
+            1 for r in ok_rows if (r.get("signals") or {}).get("dormant_placeholder_stub")
+        ),
+        "unrelated_cli_bin_shadowing_count": sum(
+            1 for r in ok_rows if (r.get("signals") or {}).get("unrelated_cli_bin_shadowing")
+        ),
+        "packages": inspected,
+    }
+
+
 def audit_target(
     target: BrandTarget,
     client: Optional[PoliteHttpClient] = None,
     gh_cache: Optional[Dict[str, Dict[str, Any]]] = None,
     include_lookalike: bool = True,
+    inspect_packages: bool = False,
 ) -> AuditReport:
     """Execute a complete 100% passive audit on a single BrandTarget."""
     t0 = time.monotonic()
@@ -120,6 +161,8 @@ def audit_target(
 
     # 2. Vector 1 (Primary): MCP Supply-Chain & Brand Provenance
     v1_data, v1_findings = probe_vector1(http, target, verified_domains, cache)
+    if inspect_packages:
+        v1_data["static_package_audit"] = _run_optional_static_package_audit(http, target, v1_data)
 
     # 3. Vector 2 (Secondary Hardened): External Perimeter, DNS-AID, CT/TLS SAN & OAuth
     v2_data, v2_findings, v2_siblings = probe_vector2(http, target, verified_domains, v1_data=v1_data)
@@ -175,10 +218,16 @@ def audit_domain(
     aliases: Optional[List[str]] = None,
     include_lookalike: bool = True,
     enable_github_search: bool = True,
+    inspect_packages: bool = False,
 ) -> AuditReport:
     target = normalize_target(domain=domain, brand=brand, aliases=aliases)
     client = PoliteHttpClient(enable_github_search=enable_github_search)
-    return audit_target(target, client=client, include_lookalike=include_lookalike)
+    return audit_target(
+        target,
+        client=client,
+        include_lookalike=include_lookalike,
+        inspect_packages=inspect_packages,
+    )
 
 
 def load_targets_from_json(path: str) -> List[BrandTarget]:

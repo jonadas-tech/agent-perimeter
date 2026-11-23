@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agent-perimeter"
-version = "0.1.0"
+version = "0.2.0"
 description = "100% passive external attack surface scanner for agentic brand impersonation, MCP supply-chain exposure, and DNS-AID/OAuth perimeter hygiene."
 readme = "README.md"
 license = "Apache-2.0"

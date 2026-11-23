@@ -1,0 +1,200 @@
+{
+  "study_title": "State of External Agentic Exposure 2027 — Full Unverified Package Static Census",
+  "scanned_at": "2026-11-23T11:47:06Z",
+  "duration_seconds": 121.87,
+  "methodology": "100% passive, read-only in-memory static inspection of public npm tarballs and PyPI wheels/sdists (<=5 MB cap, zero package execution).",
+  "responsible_disclosure_note": "All package names, maintainer accounts, repository URLs, and target brand names have been stripped from this public dataset.",
+  "summary": {
+    "total_unique_unverified_packages": 642,
+    "successfully_inspected_in_memory": 632,
+    "inspection_skipped_or_failed": 10,
+    "skip_or_error_breakdown": {
+      "exceeds_max_bytes (22502811)": 1,
+      "exceeds_max_bytes (11628436)": 1,
+      "exceeds_max_bytes (22515318)": 1,
+      "exceeds_max_bytes (77065014)": 1,
+      "exceeds_max_bytes (72395322)": 1,
+      "exceeds_max_bytes (78285220)": 1,
+      "exceeds_max_bytes (14999621)": 1,
+      "exceeds_max_bytes (25278931)": 1,
+      "exceeds_max_bytes (8312202)": 1,
+      "exceeds_max_bytes (15548914)": 1
+    },
+    "by_registry_inspected": {
+      "npm": 520,
+      "pypi": 112
+    },
+    "signals": {
+      "missing_repository_url": {
+        "count": 150,
+        "pct": 23.7
+      },
+      "any_lifecycle_hook": {
+        "count": 117,
+        "pct": 18.5
+      },
+      "non_benign_lifecycle_hook": {
+        "count": 31,
+        "pct": 4.9
+      },
+      "unverified_remote_postinstall": {
+        "count": 1,
+        "pct": 0.2
+      },
+      "dormant_placeholder_stub": {
+        "count": 22,
+        "pct": 3.5
+      },
+      "unrelated_cli_bin_shadowing": {
+        "count": 11,
+        "pct": 1.7
+      },
+      "session_cookie_or_admin_bypass": {
+        "count": 5,
+        "pct": 0.8
+      },
+      "antibot_or_tls_evasion": {
+        "count": 6,
+        "pct": 0.9
+      },
+      "shell_or_subprocess_exec": {
+        "count": 109,
+        "pct": 17.2
+      },
+      "references_local_agent_config_files": {
+        "count": 26,
+        "pct": 4.1
+      },
+      "opaque_minified_bundle_gt200kb": {
+        "count": 0,
+        "pct": 0.0
+      },
+      "suspicious_tool_prompt_pattern_raw": {
+        "count": 1,
+        "pct": 0.2
+      },
+      "unicode_tag_characters": {
+        "count": 0,
+        "pct": 0.0
+      },
+      "suspicious_tool_prompt_pattern_verified": {
+        "count": 0,
+        "pct": 0.0,
+        "note": "1 raw regex match on benign API error-handling prose manually audited and excluded as false positive."
+      },
+      "postinstall_remote_binary_downloaders": {
+        "count": 3,
+        "verified_checksum_count": 2,
+        "unverified_checksum_count": 1
+      }
+    },
+    "multi_brand_maintainer_clusters_ge3_brands": 29,
+    "top_anonymized_clusters": [
+      {
+        "cluster_id": "CLUSTER-01",
+        "registry": "npm",
+        "package_count": 24,
+        "distinct_top100_brands_targeted": 23,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-02",
+        "registry": "npm",
+        "package_count": 18,
+        "distinct_top100_brands_targeted": 18,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-03",
+        "registry": "npm",
+        "package_count": 18,
+        "distinct_top100_brands_targeted": 12,
+        "dormant_placeholder_stub_count": 18
+      },
+      {
+        "cluster_id": "CLUSTER-04",
+        "registry": "npm",
+        "package_count": 16,
+        "distinct_top100_brands_targeted": 11,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-05",
+        "registry": "npm",
+        "package_count": 16,
+        "distinct_top100_brands_targeted": 11,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-06",
+        "registry": "npm",
+        "package_count": 9,
+        "distinct_top100_brands_targeted": 7,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-07",
+        "registry": "npm",
+        "package_count": 8,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-08",
+        "registry": "npm",
+        "package_count": 8,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-09",
+        "registry": "npm",
+        "package_count": 8,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-10",
+        "registry": "npm",
+        "package_count": 8,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-11",
+        "registry": "npm",
+        "package_count": 8,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-12",
+        "registry": "npm",
+        "package_count": 7,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-13",
+        "registry": "npm",
+        "package_count": 7,
+        "distinct_top100_brands_targeted": 6,
+        "dormant_placeholder_stub_count": 7
+      },
+      {
+        "cluster_id": "CLUSTER-14",
+        "registry": "npm",
+        "package_count": 6,
+        "distinct_top100_brands_targeted": 5,
+        "dormant_placeholder_stub_count": 0
+      },
+      {
+        "cluster_id": "CLUSTER-15",
+        "registry": "npm",
+        "package_count": 6,
+        "distinct_top100_brands_targeted": 5,
+        "dormant_placeholder_stub_count": 0
+      }
+    ]
+  }
+}

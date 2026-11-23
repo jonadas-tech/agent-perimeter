@@ -81,9 +81,29 @@
 | Retail & Consumer | 4/11 | 0.0 | 14.5 | 0.0% | 36.4% | 36.4% | 27.3% | 0.0% |
 | Telecom & Media | 1/4 | 0.0 | 10.0 | 0.0% | 25.0% | 25.0% | 25.0% | 25.0% |
 
-## 5. Methodology Summary (Passive-Only, 2-Axis Scoring Model)
+## 5. Full Unverified Package Static Census (N=632 / 642 Inspected In Memory)
 
-- **2-Axis Scoring (`2-axis-v1`):** Separates **Axis 1 — First-Party Control Posture** (0–100, higher = better, Grade `A–F` across applicable controls `C1–C6`: Official Registry, Official Scoped Packages, RFC 9728 coverage, Least-Privilege OAuth Scopes, Domain Boundary Consistency, and DNSSEC/DNS-AID; brands with zero external agentic footprint receive `N/A Baseline` instead of an inflated Grade A) from **Axis 2 — External Ecosystem Threat Pressure** (0–100, higher = heavier third-party pressure across `T1–T6`: URL-Path Token Exposure, Unverified 3P Proxies, Free-Email Maintainer Collisions, Unverified Packages, Active Lookalike Agent Endpoints, and Phishing-Warning Lookalikes; levels `None`–`Critical` with no A–F grade).
-- **V1 (MCP Supply-Chain Provenance):** Queries `registry.modelcontextprotocol.io/v0.1/servers`, npm Registry API, PyPI JSON API, and GitHub REST API. Anchors official assets using reverse-DNS prefixes, verified sibling domains, GitHub org `blog`/`email` verification, and cross-registry npm/PyPI maintainer email anchoring. Applies homonym and generic-wrapper filters to suppress false attributions.
+Beyond registry and perimeter metadata, we performed a **100% passive, read-only in-memory static inspection** (`io.BytesIO`, <=5 MB archive cap, zero package execution) across all **642 unique unverified brand-named MCP packages** (`529` npm + `113` PyPI) discovered across the Top-100 cohort. **632 packages (`98.4%`: `520` npm, `112` PyPI)** were inspected in memory; `10` exceeded the `5 MB` archive cap (`8.3 MB`–`78.3 MB`, primarily bundled native Go/Rust binaries). Full anonymized metrics are stored in [`datasets/static_census_2027_anonymized.json`](../datasets/static_census_2027_anonymized.json).
+
+| Passive Static Signal (`N=632` Inspected Packages) | Count | Prevalence | Significance |
+|---|---:|---:|---|
+| **Missing source repository URL** in package metadata | **150** | **23.7%** | Nearly 1 in 4 unverified brand-named MCP packages cannot be traced to a public source repository |
+| **Lifecycle scripts declared** (`preinstall`/`install`/`postinstall`/`prepare`) | **117** | **18.5%** | `31` (`4.9%`) non-standard hooks; `3` `postinstall` remote native binary downloaders (`1` with zero SHA-256 verification) |
+| **Shell / subprocess execution** (`child_process` / `subprocess`) | **109** | **17.2%** | Local command execution surface inside unverified MCP wrappers |
+| **References local AI agent config files** (`.cursor/mcp.json`, `claude_desktop_config.json`, `.codex/config.toml`) | **26** | **4.1%** | Direct interaction with developer agent configuration paths |
+| **Dormant placeholder stubs** (`coming-soon` / `89-byte` stubs) | **22** | **3.5%** | Latent namespace-squat inventory spanning `13` Top-100 brands |
+| **Unrelated CLI `bin` name registration** | **11** | **1.7%** | Includes cross-brand CLI binary shadowing in `PATH` |
+| **Anti-bot / TLS evasion libraries** (`Patchright`, `curl_cffi` Chrome TLS impersonation) | **6** | **0.9%** | Wrappers automating consumer/enterprise web portals behind bot management |
+| **Stealth session-cookie / admin-approval bypass** (`xoxc`/`xoxd`) | **5** | **0.8%** | Includes a `229k+` dl/mo unscoped wrapper explicitly bypassing workspace admin approval |
+| **Verified hidden prompt-injection / Unicode Tag payloads** | **0** | **0.0%** | Current real-world risk is classical supply-chain & governance failure, not covert tool-description prompt injection |
+
+**Maintainer Blast-Radius Concentration:** **`29` individual maintainer accounts** each publish unverified MCP packages targeting **3 to 23 distinct Top-100 brands**. The top two accounts alone maintain `24` packages across `23` Top-100 brands and `18` packages across `18` Top-100 brands, illustrating that compromise of a single third-party maintainer account cascades across dozens of enterprise brands simultaneously. Separately, **`5` of `50` Tech/SaaS brands (`10.0%`)** already have exact unscoped `mcp-server-<brand>` names replaced with npm Security `0.0.1-security` holding packages.
+
+---
+
+## 6. Methodology Summary (Passive-Only, 2-Axis Risk Model)
+
+- **Scoring (`2-axis-v1`):** Separates **First-Party Control Posture** (0–100, Grade `A–F` across applicable controls `C1–C6`: Official Registry, Official Scoped Packages, RFC 9728 coverage, Least-Privilege OAuth Scopes, Domain Boundary Consistency, and DNSSEC/DNS-AID; `N/A Baseline` for zero-footprint brands) from **External Ecosystem Threat Pressure** (0–100, `None`–`Critical` across `T1–T6`: URL-Path Token Exposure, Unverified 3P Proxies, Free-Email Maintainer Collisions, Unverified Packages, Active Lookalike Agent Endpoints, and Phishing-Warning Lookalikes).
+- **V1 (MCP Supply-Chain Provenance):** Queries `registry.modelcontextprotocol.io/v0.1/servers` (broad + targeted reverse-DNS anchor queries), npm Registry API, PyPI JSON API, and GitHub REST API. Anchors official assets using reverse-DNS prefixes, verified sibling domains, GitHub org `blog`/`email` verification, and cross-registry npm/PyPI maintainer email anchoring. Strips hosting-platform prefixes (`io.github.*`, `app.vercel.*`, `dev.workers.*`), skips unpublished tombstones, isolates `0.0.1-security` holding packages, and applies homonym/generator filters.
 - **V2 (External Perimeter, DNS-AID & OAuth):** Queries Google/Cloudflare DoH (`do=1` for DNSSEC `AD` bit) for `_agent.<domain>` and `_mcp.<domain>` SVCB/TXT/SRV records, Certificate Transparency (CertSpotter primary + `crt.sh` fallback) + live TLS SAN inspection for `mcp.*` / `agents.*`, and passive HTTP GET on RFC 9728 (`/.well-known/oauth-protected-resource`) and standard `.well-known` discovery documents.
-- **V3 (Silent Active Lookalike Sub-Check):** Silently suppresses domain parking, GoDaddy/Afternic landers, Cloudflare HTTP 523 squatters, and defensive brand registrations; flags only confirmed active `/mcp` / `.well-known` agent endpoints or third-party phishing warning interstitials.
+- **V3 (Silent Active Lookalike Sub-Check):** Silently suppresses domain parking, GoDaddy/Afternic/Confluence landers, Cloudflare HTTP 523 squatters, and defensive brand registrations; flags only confirmed active `/mcp` / `.well-known` agent endpoints or HTTP 403/451 third-party phishing warning interstitials.

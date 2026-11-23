@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="State of External Agentic Exposure 2027 — Top 100 Brands and 632-Package Static Census">
+  <defs>
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <style>
+      .t-title { font: 700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #f8fafc; }
+      .t-sub   { font: 400 12.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #cbd5e1; }
+      .t-sec   { font: 700 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #0f172a; letter-spacing: 0.03em; }
+      .t-lbl   { font: 600 12.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #1e293b; }
+      .t-val   { font: 700 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .t-val-w { font: 700 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #ffffff; }
+      .t-leg   { font: 600 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #334155; }
+      .t-kpi   { font: 700 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .t-kpil  { font: 600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #475569; }
+      .t-foot  { font: 400 10.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; fill: #64748b; }
+    </style>
+  </defs>
+
+  <!-- Canvas -->
+  <rect width="960" height="540" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Header -->
+  <rect x="0" y="0" width="960" height="76" rx="12" fill="url(#hdr)"/>
+  <rect x="0" y="64" width="960" height="12" fill="url(#hdr)"/>
+  <text x="28" y="34" class="t-title">State of External Agentic Exposure 2027</text>
+  <text x="28" y="56" class="t-sub">100% Passive Audit: 100 Public Brands (50 Fortune/S&amp;P 500 + 50 SaaS/Fintech/Cloud/AI) &amp; 632 Unverified Packages</text>
+
+  <!-- Legend -->
+  <rect x="650" y="92" width="12" height="12" rx="2" fill="#2563eb"/>
+  <text x="668" y="102" class="t-leg">SaaS / Fintech / AI (N=50)</text>
+  <rect x="822" y="92" width="12" height="12" rx="2" fill="#ea580c"/>
+  <text x="840" y="102" class="t-leg">Fortune 500 (N=50)</text>
+
+  <text x="28" y="103" class="t-sec">EXTERNAL MCP PERIMETER &amp; PROVENANCE PREVALENCE</text>
+
+  <!-- Horizontal Gridlines (bar area x=310..910 -> width 600px = 100%) -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="310" y1="116" x2="310" y2="372"/>
+    <line x1="460" y1="116" x2="460" y2="372" stroke-dasharray="3,3"/>
+    <line x1="610" y1="116" x2="610" y2="372" stroke-dasharray="3,3"/>
+    <line x1="760" y1="116" x2="760" y2="372" stroke-dasharray="3,3"/>
+    <line x1="910" y1="116" x2="910" y2="372" stroke-dasharray="3,3"/>
+  </g>
+  <text x="310" y="388" text-anchor="middle" class="t-foot">0%</text>
+  <text x="460" y="388" text-anchor="middle" class="t-foot">25%</text>
+  <text x="610" y="388" text-anchor="middle" class="t-foot">50%</text>
+  <text x="760" y="388" text-anchor="middle" class="t-foot">75%</text>
+  <text x="910" y="388" text-anchor="middle" class="t-foot">100%</text>
+
+  <!-- Row 1: External MCP Footprint (96% vs 20%) -->
+  <text x="28" y="138" class="t-lbl">External MCP Footprint</text>
+  <rect x="310" y="121" width="576" height="14" rx="3" fill="#2563eb"/>
+  <text x="892" y="132" class="t-val">96%</text>
+  <rect x="310" y="138" width="120" height="14" rx="3" fill="#ea580c"/>
+  <text x="436" y="149" class="t-val">20%</text>
+
+  <!-- Row 2: Free-Email Unverified Packages (90% vs 10%) -->
+  <text x="28" y="179" class="t-lbl">Free-Email Unverified Packages</text>
+  <rect x="310" y="162" width="540" height="14" rx="3" fill="#2563eb"/>
+  <text x="856" y="173" class="t-val">90%</text>
+  <rect x="310" y="179" width="60" height="14" rx="3" fill="#ea580c"/>
+  <text x="376" y="190" class="t-val">10%</text>
+
+  <!-- Row 3: Unverified 3P Hosted Proxies (64% vs 14%) -->
+  <text x="28" y="220" class="t-lbl">Unverified 3rd-Party Hosted Proxies</text>
+  <rect x="310" y="203" width="384" height="14" rx="3" fill="#2563eb"/>
+  <text x="700" y="214" class="t-val">64%</text>
+  <rect x="310" y="220" width="84" height="14" rx="3" fill="#ea580c"/>
+  <text x="400" y="231" class="t-val">14%</text>
+
+  <!-- Row 4: Official Registry Vacuum (among MCP-active: 54.2% vs 70.0%) -->
+  <text x="28" y="261" class="t-lbl">Official Registry Vacuum (MCP-Active)</text>
+  <rect x="310" y="244" width="325" height="14" rx="3" fill="#2563eb"/>
+  <text x="641" y="255" class="t-val">54.2% (26/48)</text>
+  <rect x="310" y="261" width="420" height="14" rx="3" fill="#ea580c"/>
+  <text x="736" y="272" class="t-val">70.0% (7/10)</text>
+
+  <!-- Row 5: Missing RFC 9728 (among live mcp.*: 7.4% vs 100%) -->
+  <text x="28" y="302" class="t-lbl">Missing RFC 9728 (Live mcp.* Hosts)</text>
+  <rect x="310" y="285" width="44" height="14" rx="3" fill="#2563eb"/>
+  <text x="360" y="296" class="t-val">7.4% (2/27)</text>
+  <rect x="310" y="302" width="600" height="14" rx="3" fill="#ea580c"/>
+  <text x="840" y="313" class="t-val-w">100% (2/2)</text>
+
+  <!-- Row 6: Apex DNSSEC / IETF DNS-AID (24%/0% vs 12%/0%) -->
+  <text x="28" y="343" class="t-lbl">Apex DNSSEC Validated (DNS-AID: 0%)</text>
+  <rect x="310" y="326" width="144" height="14" rx="3" fill="#2563eb"/>
+  <text x="460" y="337" class="t-val">24%</text>
+  <rect x="310" y="343" width="72" height="14" rx="3" fill="#ea580c"/>
+  <text x="388" y="354" class="t-val">12%</text>
+
+  <!-- Bottom Strip: 632-Package Static Census Callout Cards -->
+  <text x="28" y="416" class="t-sec">632-PACKAGE IN-MEMORY STATIC CENSUS (98.4% OF ALL 642 UNVERIFIED PACKAGES · ZERO CODE EXECUTED)</text>
+
+  <g>
+    <rect x="28" y="426" width="214" height="74" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="44" y="454" class="t-kpi" fill="#dc2626">29 Accounts</text>
+    <text x="44" y="472" class="t-kpil">Each spans 3–23 Top-100 brands</text>
+    <text x="44" y="487" class="t-foot">Top 2 span 23 &amp; 18 brands</text>
+
+    <rect x="256" y="426" width="214" height="74" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="272" y="454" class="t-kpi">23.7% (150)</text>
+    <text x="272" y="472" class="t-kpil">Ship no source repository URL</text>
+    <text x="272" y="487" class="t-foot">18.5% declare lifecycle hooks</text>
+
+    <rect x="484" y="426" width="214" height="74" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="500" y="454" class="t-kpi">22 Stubs · 5 Held</text>
+    <text x="500" y="472" class="t-kpil">Dormant squats across 13 brands</text>
+    <text x="500" y="487" class="t-foot">5 Tech brands hit 0.0.1-security</text>
+
+    <rect x="712" y="426" width="220" height="74" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="728" y="454" class="t-kpi" fill="#16a34a">0.0% (0/632)</text>
+    <text x="728" y="472" class="t-kpil">Hidden prompt-injection payloads</text>
+    <text x="728" y="487" class="t-foot">Risk is classical supply-chain hygiene</text>
+  </g>
+
+  <text x="28" y="524" class="t-foot">Source: agent-perimeter v0.2.0 · Anonymized dataset &amp; methodology at github.com/jonadas-tech/agent-perimeter · OWASP Agentic Top 10 (2026) &amp; MCP Top 10 (2025)</text>
+</svg>

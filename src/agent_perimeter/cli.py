@@ -9,7 +9,9 @@ import sys
 from typing import List, Optional
 
 from . import __version__
+from .diff import compare_reports, format_diff_summary
 from .report_html import render_html_report
+from .sarif import render_sarif
 from .scanner import audit_batch, audit_domain, load_targets_from_json, utc_now_iso
 from .study import anonymize_batch_results, render_study_markdown
 
@@ -64,28 +66,49 @@ def _print_console_summary(report_dict: dict) -> None:
 
 
 def _cmd_audit(args: argparse.Namespace) -> int:
-    report = audit_domain(
-        domain=args.domain,
-        brand=args.brand,
-        aliases=args.alias or [],
-        include_lookalike=not args.no_lookalike,
-        enable_github_search=not args.no_github_search,
-    )
+    audit_kwargs = {
+        "domain": args.domain,
+        "brand": args.brand,
+        "aliases": args.alias or [],
+        "include_lookalike": not args.no_lookalike,
+        "enable_github_search": not args.no_github_search,
+    }
+    if getattr(args, "inspect_packages", False):
+        audit_kwargs["inspect_packages"] = True
+    report = audit_domain(**audit_kwargs)
     report_dict = report.to_dict()
+
+    diff_result = None
+    if getattr(args, "baseline", None):
+        with open(args.baseline, "r", encoding="utf-8") as bf:
+            baseline_dict = json.load(bf)
+        diff_result = compare_reports(report_dict, baseline_dict)
+        report_dict["baseline_diff"] = diff_result
 
     if args.json:
         _write_text(args.json, json.dumps(report_dict, indent=2, ensure_ascii=False))
     if args.html:
         _write_text(args.html, render_html_report(report_dict))
+    if getattr(args, "sarif", None):
+        _write_text(args.sarif, json.dumps(render_sarif(report_dict), indent=2, ensure_ascii=False))
 
     if not args.quiet:
         _print_console_summary(report_dict)
+        if diff_result is not None:
+            print("")
+            for line in format_diff_summary(diff_result):
+                print(line)
         if args.json:
             print(f"\nJSON report written to: {args.json}")
         if args.html:
             print(f"HTML report written to: {args.html}")
-    elif not args.json and not args.html:
+        if getattr(args, "sarif", None):
+            print(f"SARIF 2.1.0 report written to: {args.sarif}")
+    elif not args.json and not args.html and not getattr(args, "sarif", None):
         print(json.dumps(report_dict, indent=2, ensure_ascii=False))
+
+    if getattr(args, "fail_on_new", False) and diff_result and diff_result.get("has_new_exposures"):
+        return 2
     return 0
 
 
@@ -161,6 +184,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_audit.add_argument("--alias", action="append", help="Additional brand alias (repeatable)")
     p_audit.add_argument("--json", help="Path to export structured JSON report")
     p_audit.add_argument("--html", help="Path to export single-file CISO HTML report")
+    p_audit.add_argument("--sarif", help="Path to export SARIF 2.1.0 report for GitHub Code Scanning / CI")
+    p_audit.add_argument("--baseline", help="Path to a previous JSON report to diff for new external exposures")
+    p_audit.add_argument("--fail-on-new", action="store_true", help="Exit with code 2 if --baseline detects new exposures")
+    p_audit.add_argument("--inspect-packages", action="store_true", help="Passively inspect up to 10 unverified npm/PyPI tarballs in memory (zero execution)")
     p_audit.add_argument("--no-lookalike", action="store_true", help="Skip V3 active lookalike sub-check")
     p_audit.add_argument("--no-github-search", action="store_true", help="Skip GitHub repo search in V1")
     p_audit.add_argument("--quiet", "-q", action="store_true", help="Suppress console summary output")
