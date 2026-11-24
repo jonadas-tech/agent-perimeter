@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 
 from .models import BrandTarget, Finding, ScoreSummary
-from .taxonomy import FINDING_DEFINITIONS, axis_for
+from .taxonomy import ALL_FINDING_DEFINITIONS, FINDING_DEFINITIONS, axis_for
 
 SCORING_MODEL = "2-axis-v1"
 SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
@@ -243,6 +243,13 @@ def score_audit(
     cross_3p = bool(v2_flags.get("cross_domain_3p_delegation_detected"))
     dnssec_enabled = bool(v2_flags.get("apex_dnssec_enabled"))
     dns_aid_present = bool(v2_flags.get("dns_aid_present"))
+    dns_aid_index_present = bool(v2_flags.get("dns_aid_index_present"))
+    dns_aid_agent_count = int(v2_flags.get("dns_aid_agent_count") or 0)
+    card_hash_verified = int(v2_flags.get("dns_aid_card_hash_verified_count") or 0)
+    card_hash_mismatch = int(v2_flags.get("dns_aid_card_hash_mismatch_count") or 0)
+    dane_tlsa_count = int(v2_flags.get("dane_tlsa_count") or 0)
+    ans_badge_verified = int(v2_flags.get("ans_badge_verified_count") or 0)
+    spoofed_ans_v2 = int(v2_flags.get("spoofed_ans_badge_count") or 0)
 
     # ------------------------------------------------------------------
     # Axis 1: First-Party Control Posture (0-100, higher = better; or N/A)
@@ -254,6 +261,10 @@ def score_audit(
         or rfc_present > 0
         or cross_drift
         or cross_3p
+        or dns_aid_index_present
+        or dns_aid_agent_count > 0
+        or spoofed_ans_v2 > 0
+        or card_hash_mismatch > 0
     )
 
     control_breakdown: List[Dict[str, Any]] = []
@@ -318,36 +329,51 @@ def score_audit(
         earned_sum = 0.0
         max_sum = 0.0
 
-        # C1: Official MCP Registry Presence (35, always applicable)
-        c1_earned = 35.0 if official_reg_cnt >= 1 else 0.0
-        c1_status = "pass" if c1_earned == 35.0 else "gap"
-        official_names = [
-            e.get("name")
-            for e in (v1_reg.get("entries") or [])
-            if e.get("classification") == "official_domain_anchored" and e.get("name")
-        ]
-        c1_detail = (
-            f"{_plural(official_reg_cnt, 'official domain-anchored entry', 'official domain-anchored entries')} "
-            f"({', '.join(official_names[:2])})"
-            if official_reg_cnt >= 1 and official_names
-            else (
-                f"{_plural(official_reg_cnt, 'official domain-anchored entry', 'official domain-anchored entries')} verified"
-                if official_reg_cnt >= 1
-                else f"0 officially domain-anchored entries in Official MCP Registry for {target.domain}"
+        # C1: Official MCP Registry Presence (35, applicable when an MCP registry, package, or live mcp.* footprint exists)
+        has_mcp_c1_scope = bool(
+            v1_flags.get("has_any_mcp_footprint") or live_mcp > 0 or (npm_official + pypi_official) > 0
+        )
+        if has_mcp_c1_scope:
+            c1_earned = 35.0 if official_reg_cnt >= 1 else 0.0
+            c1_status = "pass" if c1_earned == 35.0 else "gap"
+            official_names = [
+                e.get("name")
+                for e in (v1_reg.get("entries") or [])
+                if e.get("classification") == "official_domain_anchored" and e.get("name")
+            ]
+            c1_detail = (
+                f"{_plural(official_reg_cnt, 'official domain-anchored entry', 'official domain-anchored entries')} "
+                f"({', '.join(official_names[:2])})"
+                if official_reg_cnt >= 1 and official_names
+                else (
+                    f"{_plural(official_reg_cnt, 'official domain-anchored entry', 'official domain-anchored entries')} verified"
+                    if official_reg_cnt >= 1
+                    else f"0 officially domain-anchored entries in Official MCP Registry for {target.domain}"
+                )
             )
-        )
-        control_breakdown.append(
-            {
-                "id": "C1",
-                "name": "Official MCP Registry Presence",
-                "status": c1_status,
-                "earned": _clean_points(c1_earned),
-                "max_points": 35,
-                "detail": c1_detail,
-            }
-        )
-        earned_sum += c1_earned
-        max_sum += 35.0
+            control_breakdown.append(
+                {
+                    "id": "C1",
+                    "name": "Official MCP Registry Presence",
+                    "status": c1_status,
+                    "earned": _clean_points(c1_earned),
+                    "max_points": 35,
+                    "detail": c1_detail,
+                }
+            )
+            earned_sum += c1_earned
+            max_sum += 35.0
+        else:
+            control_breakdown.append(
+                {
+                    "id": "C1",
+                    "name": "Official MCP Registry Presence",
+                    "status": "na",
+                    "earned": None,
+                    "max_points": 35,
+                    "detail": "Not applicable (no MCP registry, package, or live mcp.* footprint detected)",
+                }
+            )
 
         # C2: Official Scoped / Anchored Packages (15, applicable if any npm/PyPI packages exist)
         total_pkgs = npm_official + pypi_official + npm_unv + pypi_unv
@@ -522,11 +548,30 @@ def score_audit(
             )
 
         # C6: Cryptographic DNS Trust (12 = 8 DNSSEC + 4 DNS-AID, always applicable)
-        c6_earned = (8.0 if dnssec_enabled else 0.0) + (4.0 if dns_aid_present else 0.0)
+        dns_aid_integrity_ok = card_hash_mismatch == 0 and spoofed_ans_v2 == 0
+        c6_dns_aid_pts = 4.0 if (dns_aid_present and dns_aid_integrity_ok) else 0.0
+        c6_earned = (8.0 if dnssec_enabled else 0.0) + c6_dns_aid_pts
         c6_status = "pass" if c6_earned == 12.0 else ("partial" if c6_earned > 0.0 else "gap")
+        c6_extras: List[str] = []
+        if card_hash_mismatch > 0:
+            c6_extras.append(f"{card_hash_mismatch} card-digest mismatch")
+        elif card_hash_verified > 0:
+            c6_extras.append(f"{card_hash_verified} card digest verified")
+        if dane_tlsa_count > 0:
+            c6_extras.append(f"DANE TLSA on {dane_tlsa_count} host(s)")
+        if spoofed_ans_v2 > 0:
+            c6_extras.append(f"{spoofed_ans_v2} ANS badge host mismatch")
+        elif ans_badge_verified > 0:
+            c6_extras.append(f"{ans_badge_verified} ANS badge verified")
+        extra_clause = f" ({'; '.join(c6_extras)})" if c6_extras else ""
+        dns_aid_c6_str = (
+            "present (+4)"
+            if (dns_aid_present and dns_aid_integrity_ok)
+            else ("present with integrity/binding failure (0/4)" if dns_aid_present else "not detected (0/4)")
+        )
         c6_detail = (
             f"Apex DNSSEC: {'AD=true (+8)' if dnssec_enabled else 'AD=false (0/8)'}; "
-            f"IETF DNS-AID: {'present (+4)' if dns_aid_present else 'not detected (0/4)'}"
+            f"IETF DNS-AID: {dns_aid_c6_str}{extra_clause}"
         )
         control_breakdown.append(
             {
@@ -581,10 +626,13 @@ def score_audit(
 
     has_v3_agent = bool(v3_flags.get("has_active_lookalike_agent_endpoint"))
     has_v3_phish = bool(v3_flags.get("has_active_phishing_lookalike"))
+    has_v3_spoofed_ans = bool(v3_flags.get("has_spoofed_ans_badge_lookalike"))
     v3_agent_cnt = len(v3_data.get("active_agent_endpoints") or []) if has_v3_agent else 0
     v3_phish_cnt = len(v3_data.get("phishing_flagged") or []) if has_v3_phish else 0
+    v3_spoofed_ans_cnt = len(v3_data.get("spoofed_ans_badge_hosts") or []) if has_v3_spoofed_ans else 0
     t5_pts = 50 if has_v3_agent else 0
     t6_pts = 25 if has_v3_phish else 0
+    t7_pts = 50 if has_v3_spoofed_ans else 0
 
     threat_breakdown: List[Dict[str, Any]] = [
         {
@@ -657,9 +705,20 @@ def score_audit(
                 else "None detected"
             ),
         },
+        {
+            "id": "T7",
+            "name": "Spoofed ANS Badge Lookalike",
+            "points": t7_pts,
+            "count": v3_spoofed_ans_cnt,
+            "detail": (
+                f"{_plural(v3_spoofed_ans_cnt, 'lookalike host')} publish a copied `_ans-badge` bound to another FQDN"
+                if has_v3_spoofed_ans
+                else "None detected"
+            ),
+        },
     ]
 
-    threat_pressure_score = min(100, t1_pts + t2_pts + t3_pts + t4_pts + t5_pts + t6_pts)
+    threat_pressure_score = min(100, t1_pts + t2_pts + t3_pts + t4_pts + t5_pts + t6_pts + t7_pts)
     threat_pressure_level = threat_pressure_level_for(threat_pressure_score)
 
     # ------------------------------------------------------------------
@@ -710,6 +769,8 @@ def score_audit(
             drivers.append(f"{_plural(v3_agent_cnt, 'active lookalike MCP endpoint')}")
         if has_v3_phish:
             drivers.append(f"{_plural(v3_phish_cnt, 'phishing-warning lookalike domain')}")
+        if has_v3_spoofed_ans:
+            drivers.append(f"{_plural(v3_spoofed_ans_cnt, 'spoofed ANS badge lookalike host')}")
         takeaways.append(
             f"External Threat Pressure is {threat_pressure_level} ({threat_pressure_score}/100), driven by "
             f"{'; '.join(drivers)} — compared to {_plural(official_reg_cnt, 'official domain-anchored registry entry', 'official domain-anchored registry entries')}."
@@ -768,6 +829,16 @@ def score_audit(
                     "[Domain Boundary] Explicitly document verified sibling domains referenced by agent discovery metadata."
                 )
         if c_by_id["C6"]["status"] in ("gap", "partial"):
+            if card_hash_mismatch > 0:
+                first_party_priorities.append(
+                    "[DNS-AID Integrity] Re-verify the live agent card at `key65400` (`cap`) against "
+                    "`key65401` (`cap-sha256`) and publish matching SHA-256 digests atomically."
+                )
+            if spoofed_ans_v2 > 0:
+                first_party_priorities.append(
+                    "[ANS Badge Binding] Remediate `_ans-badge` host-binding mismatch(es) so transparency "
+                    "log receipts strictly match the serving FQDN."
+                )
             if not dnssec_enabled:
                 next_grade_hint = (
                     f" to advance Control Posture from {control_posture_grade} ({control_posture_score}/100) to A"
@@ -858,7 +929,7 @@ def rescore_report_dict(report_dict: Dict[str, Any]) -> Dict[str, Any]:
     findings_objs: List[Finding] = []
     for fdict in report_dict.get("findings") or []:
         rid = str(fdict.get("rule_id") or "")
-        defn = FINDING_DEFINITIONS.get(rid) or {}
+        defn = ALL_FINDING_DEFINITIONS.get(rid) or {}
         owasp_refs = [
             OwaspRef(
                 framework=str(o.get("framework") or ""),

@@ -81,6 +81,7 @@ _RTYPE_NUMBERS: Dict[str, int] = {
     "TXT": 16,
     "AAAA": 28,
     "SRV": 33,
+    "TLSA": 52,
     "SVCB": 64,
     "HTTPS": 65,
 }

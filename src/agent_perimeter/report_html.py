@@ -229,6 +229,240 @@ def _format_pkg_email_cell(pkg: Dict[str, Any], primary_key: str) -> str:
     return primary or "—"
 
 
+def _render_rdap_nod_pill(rdap: Optional[Dict[str, Any]]) -> str:
+    if not isinstance(rdap, dict) or not rdap.get("ok"):
+        return ""
+    age = rdap.get("age_days")
+    if age is None:
+        return ""
+    if rdap.get("is_nod_30d"):
+        return f' <span class="pill crit-pill">NOD &lt;30d ({_e(age)}d)</span>'
+    if rdap.get("is_nod_90d"):
+        return f' <span class="pill warn-pill">NOD &lt;90d ({_e(age)}d)</span>'
+    return f' <span class="pill neutral-pill">RDAP {_e(age)}d</span>'
+
+
+def _render_wire_dns_aid_panel(v2: Dict[str, Any]) -> str:
+    """Render v0.3.0 wire-level DNS-AID / ANS v2 & Chain-of-Trust validation panel."""
+    linter = v2.get("dns_aid_linter") or {}
+    cot = v2.get("chain_of_trust") or {}
+    if not isinstance(linter, dict):
+        linter = {}
+    if not isinstance(cot, dict):
+        cot = {}
+
+    agent_records = linter.get("agent_records") or []
+    surfaces = cot.get("surfaces_detected") or []
+    spoofed_list = linter.get("spoofed_ans_badge_hosts") or []
+    has_any = bool(
+        linter.get("index_found")
+        or agent_records
+        or surfaces
+        or spoofed_list
+        or linter.get("dane_tlsa_hosts")
+    )
+    if not has_any:
+        return ""
+
+    idx_pill = (
+        f'<span class="pill ok-pill">Present ({_e(linter.get("index_source") or "dns")})</span>'
+        if linter.get("index_found")
+        else '<span class="pill neutral-pill">Not Detected</span>'
+    )
+    cat_pill = (
+        f'<span class="pill ok-pill">{_e(linter.get("catalog_host") or "Separated")}</span>'
+        if linter.get("catalog_separated")
+        else '<span class="pill neutral-pill">Not Separated</span>'
+    )
+    ch_ok = int(linter.get("card_hash_verified_count") or 0)
+    ch_bad = len(linter.get("card_hash_mismatch_hosts") or [])
+    ch_pill = (
+        f'<span class="pill crit-pill">{ch_bad} MISMATCH</span>'
+        if ch_bad > 0
+        else (f'<span class="pill ok-pill">{ch_ok} Verified</span>' if ch_ok > 0 else '<span class="pill neutral-pill">0 Verified</span>')
+    )
+    dane_hosts = linter.get("dane_tlsa_hosts") or []
+    dane_no_sec = linter.get("dane_without_dnssec_hosts") or []
+    if dane_no_sec:
+        dane_pill = f'<span class="pill warn-pill">{len(dane_hosts)} TLSA ({len(dane_no_sec)} w/o DNSSEC)</span>'
+    elif dane_hosts:
+        dane_pill = f'<span class="pill ok-pill">{len(dane_hosts)} Validated</span>'
+    else:
+        dane_pill = '<span class="pill neutral-pill">Absent</span>'
+
+    ans_ok = len(linter.get("ans_badge_verified_hosts") or [])
+    if spoofed_list:
+        ans_pill = f'<span class="pill crit-pill">{len(spoofed_list)} SPOOFED MISMATCH</span>'
+    elif ans_ok > 0:
+        ans_pill = f'<span class="pill ok-pill">{ans_ok} Host-Bound</span>'
+    else:
+        ans_pill = '<span class="pill neutral-pill">Absent</span>'
+
+    rows: List[str] = []
+    for rec in agent_records[:25]:
+        if not isinstance(rec, dict):
+            continue
+        svcb = rec.get("svcb") or {}
+        cv = rec.get("card_verification") or {}
+        dane = rec.get("dane_tlsa") or {}
+        badge = rec.get("ans_badge") or {}
+
+        svcb_parts: List[str] = []
+        if svcb.get("bap"):
+            bap_val = ",".join(str(x) for x in svcb["bap"]) if isinstance(svcb["bap"], list) else str(svcb["bap"])
+            svcb_parts.append(f"bap={bap_val}")
+        if svcb.get("alpn"):
+            alpn_val = ",".join(str(x) for x in svcb["alpn"]) if isinstance(svcb["alpn"], list) else str(svcb["alpn"])
+            svcb_parts.append(f"alpn={alpn_val}")
+        if svcb.get("port"):
+            svcb_parts.append(f"port={svcb['port']}")
+        if svcb.get("sig"):
+            svcb_parts.append("sig=present")
+        svcb_str = " ".join(svcb_parts) or "—"
+
+        cv_st = str(cv.get("status") or "no_digest").lower()
+        if cv_st == "verified":
+            cv_html = '<span class="pill ok-pill">Verified</span>'
+        elif cv_st == "mismatch":
+            cv_html = '<span class="pill crit-pill">HASH MISMATCH</span>'
+        elif cv_st == "fetch_error":
+            cv_html = '<span class="pill warn-pill">Fetch Error</span>'
+        else:
+            cv_html = '<span class="pill neutral-pill">No Digest</span>'
+
+        if dane.get("present"):
+            if dane.get("dane_without_dnssec"):
+                dane_html = '<span class="pill warn-pill">TLSA (AD=false)</span>'
+            else:
+                dane_html = '<span class="pill ok-pill">TLSA (AD=true)</span>'
+        else:
+            dane_html = '<span class="pill neutral-pill">Absent</span>'
+
+        b_st = str(badge.get("host_binding_status") or "absent").lower()
+        if badge.get("spoofed") or b_st == "host_mismatch":
+            claimed = badge.get("receipt_host") or badge.get("ans_name") or "unknown"
+            badge_html = f'<span class="pill crit-pill">SPOOFED (claims {_e(claimed)})</span>'
+        elif b_st == "verified":
+            badge_html = '<span class="pill ok-pill">Verified Host</span>'
+        elif badge.get("present"):
+            badge_html = f'<span class="pill warn-pill">{_e(b_st)}</span>'
+        else:
+            badge_html = '<span class="pill neutral-pill">Absent</span>'
+
+        agent_lbl = str(rec.get("agent_name") or "—")
+        proto_lbl = str(rec.get("protocol") or "")
+        agent_cell = f"<code>{_e(agent_lbl)}</code>" + (f" <span class=\"pill neutral-pill\">{_e(proto_lbl)}</span>" if proto_lbl else "")
+        rows.append(
+            f"<tr>"
+            f"<td>{agent_cell}</td>"
+            f"<td><code>{_e(rec.get('target_host') or rec.get('qname') or '—')}</code></td>"
+            f"<td><code>{_e(svcb_str)}</code></td>"
+            f"<td>{cv_html}</td>"
+            f"<td>{dane_html}</td>"
+            f"<td>{badge_html}</td>"
+            f"</tr>"
+        )
+
+    table_html = ""
+    if rows:
+        table_html = (
+            "<table>"
+            "<thead><tr><th>Agent</th><th>Target Host</th><th>SVCB Params</th><th>cap-sha256 Card Digest</th><th>DANE TLSA</th><th>ANS v2 _ans-badge</th></tr></thead>"
+            f"<tbody>{''.join(rows)}</tbody>"
+            "</table>"
+        )
+
+    cot_labels = [
+        ("ard", "ARD (/.well-known/ard.json)"),
+        ("ucp", "UCP (/.well-known/ucp)"),
+        ("spiffe_bundle", "SPIFFE Bundle"),
+        ("spiffe_svid", "SPIFFE SVID"),
+        ("agent_keys_txt", "TXT _agent-keys"),
+    ]
+    cot_chips: List[str] = []
+    for key, label in cot_labels:
+        items = cot.get(key) or []
+        present = bool(items) or (key in surfaces)
+        pill = (
+            f'<span class="pill ok-pill">Detected ({len(items)})</span>'
+            if present and items
+            else ('<span class="pill ok-pill">Detected</span>' if present else '<span class="pill neutral-pill">Absent</span>')
+        )
+        cot_chips.append(f'<div class="baseline-chip"><span>{_e(label)}</span> {pill}</div>')
+
+    return f"""
+  <section class="panel" aria-label="Wire-Level DNS-AID and ANS v2 Validation">
+    <h2>V2 · Wire-Level DNS-AID (draft-02), DANE &amp; ANS v2 Validation</h2>
+    <div class="baseline-strip" style="margin-bottom:12px;">
+      <div class="baseline-chip"><span>_index._agents</span> {idx_pill}</div>
+      <div class="baseline-chip"><span>Catalog Separation</span> {cat_pill}</div>
+      <div class="baseline-chip"><span>cap-sha256 Card Hash</span> {ch_pill}</div>
+      <div class="baseline-chip"><span>DANE TLSA</span> {dane_pill}</div>
+      <div class="baseline-chip"><span>ANS v2 _ans-badge</span> {ans_pill}</div>
+    </div>
+    {table_html}
+    <div class="owner-subhead" style="margin-top:14px;">Complementary Chain-of-Trust Surfaces</div>
+    <div class="baseline-strip">{"".join(cot_chips)}</div>
+  </section>
+    """
+
+
+def _render_rdap_panel(telemetry: Dict[str, Any]) -> str:
+    """Render passive RFC 9083 RDAP domain-age & registrar table when domains were profiled."""
+    rdap = telemetry.get("rdap") or {}
+    if not isinstance(rdap, dict) or not rdap.get("queried_count"):
+        return ""
+    domains_map = rdap.get("domains") or {}
+    if not isinstance(domains_map, dict) or not domains_map:
+        return ""
+
+    rows: List[str] = []
+    sorted_items = sorted(
+        domains_map.items(),
+        key=lambda kv: (
+            0 if kv[1].get("is_nod_30d") else (1 if kv[1].get("is_nod_90d") else 2),
+            kv[1].get("age_days") if kv[1].get("age_days") is not None else 999999,
+            kv[0],
+        ),
+    )
+    for dom, prof in sorted_items[:15]:
+        if not isinstance(prof, dict):
+            continue
+        if prof.get("ok"):
+            age_val = prof.get("age_days")
+            age_cell = f"{_e(age_val)}d" if age_val is not None else "—"
+            nod_pill = _render_rdap_nod_pill(prof)
+            created_str = str(prof.get("created_at") or "—")[:10]
+            registrar_str = str(prof.get("registrar") or "—")
+        else:
+            age_cell = "—"
+            nod_pill = f'<span class="pill neutral-pill">{_e(prof.get("error") or "unavailable")}</span>'
+            created_str = "—"
+            registrar_str = "—"
+        cats = ", ".join(str(c) for c in (prof.get("categories") or [])) or "external"
+        rows.append(
+            f"<tr>"
+            f"<td><code>{_e(dom)}</code></td>"
+            f"<td>{_e(created_str)}</td>"
+            f"<td>{age_cell}{nod_pill}</td>"
+            f"<td>{_e(registrar_str)}</td>"
+            f"<td><code>{_e(cats)}</code></td>"
+            f"</tr>"
+        )
+
+    nod30 = int(rdap.get("nod_30d_count") or 0)
+    nod90 = int(rdap.get("nod_90d_count") or 0)
+    return f"""
+  <section class="panel" aria-label="Passive RDAP Domain Age and Registrar Profiling">
+    <h2>Passive RFC 9083 RDAP Domain-Age &amp; Registrar Telemetry <span class="muted" style="font-size:12px;">({int(rdap.get("resolved_count") or 0)}/{int(rdap.get("queried_count") or 0)} resolved · NOD &lt;30d: {nod30} · NOD &lt;90d: {nod90})</span></h2>
+    <table>
+      <thead><tr><th>External Domain</th><th>Registered</th><th>Age / NOD Status</th><th>Registrar</th><th>Observation Source</th></tr></thead>
+      <tbody>{"".join(rows)}</tbody>
+    </table>
+  </section>
+    """
+
+
 def render_html_report(report: AuditReport | Dict[str, Any]) -> str:
     """Render a single-file CISO-ready executive HTML report from an AuditReport or dict."""
     data = report.to_dict() if isinstance(report, AuditReport) else report
@@ -327,13 +561,23 @@ def render_html_report(report: AuditReport | Dict[str, Any]) -> str:
     reg_rows: List[str] = []
     for entry in reg_entries[:25]:
         cls = entry.get("classification", "")
+        rdap_badge = ""
+        remote_rdap = entry.get("remote_rdap")
+        if isinstance(remote_rdap, dict):
+            for _rdom, rprof in remote_rdap.items():
+                if isinstance(rprof, dict) and rprof.get("ok"):
+                    pill = _render_rdap_nod_pill(rprof)
+                    if rprof.get("is_nod_30d") or rprof.get("is_nod_90d") or not rdap_badge:
+                        rdap_badge = pill
+                        if rprof.get("is_nod_30d"):
+                            break
         if cls == "official_domain_anchored":
             cls_badge = '<span class="pill ok-pill">Official Domain-Anchored</span>'
         elif cls == "unverified_3p_hosted_proxy":
             tok_flag = ' <span class="pill crit-pill">URL-Path Token</span>' if entry.get("url_path_token_exposed") else ""
-            cls_badge = f'<span class="pill warn-pill">Unverified 3P Hosted Proxy</span>{tok_flag}'
+            cls_badge = f'<span class="pill warn-pill">Unverified 3P Hosted Proxy</span>{tok_flag}{rdap_badge}'
         else:
-            cls_badge = '<span class="pill neutral-pill">Unverified 3P Entry</span>'
+            cls_badge = f'<span class="pill neutral-pill">Unverified 3P Entry</span>{rdap_badge}'
         remotes_str = ", ".join(r.get("url", "") for r in (entry.get("remotes") or [])[:2]) or "Package-only (no remote URL)"
         reg_rows.append(
             f"<tr><td><code>{_e(entry.get('name'))}</code></td><td>{cls_badge}</td><td><code>{_e(remotes_str)}</code></td></tr>"
@@ -401,7 +645,11 @@ def render_html_report(report: AuditReport | Dict[str, Any]) -> str:
     sub_table_body = "".join(sub_rows) or '<tr><td colspan="5" class="muted">No live agent/MCP subdomains detected.</td></tr>'
 
     # V3 status summary
-    v3_active_cnt = len(v3.get("active_agent_endpoints") or []) + len(v3.get("phishing_flagged") or [])
+    v3_active_cnt = (
+        len(v3.get("active_agent_endpoints") or [])
+        + len(v3.get("phishing_flagged") or [])
+        + len(v3.get("spoofed_ans_badge_hosts") or [])
+    )
     v3_status = (
         f"{_plural(v3_active_cnt, 'active alert')}"
         if v3_active_cnt > 0
@@ -412,6 +660,8 @@ def render_html_report(report: AuditReport | Dict[str, Any]) -> str:
     free_email_cnt = (v1_npm.get("free_email_unverified_count") or 0) + (v1_pypi.get("free_email_unverified_count") or 0)
 
     control_panel_html = _render_control_breakdown(control_breakdown, posture_applicable, v2_dns_aid)
+    wire_dns_aid_panel_html = _render_wire_dns_aid_panel(v2)
+    rdap_panel_html = _render_rdap_panel(data.get("telemetry") or {})
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -934,6 +1184,10 @@ def render_html_report(report: AuditReport | Dict[str, Any]) -> str:
       <tbody>{sub_table_body}</tbody>
     </table>
   </section>
+
+  {wire_dns_aid_panel_html}
+
+  {rdap_panel_html}
 </main>
 
 <footer class="wrap">

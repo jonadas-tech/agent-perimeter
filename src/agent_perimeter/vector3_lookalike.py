@@ -16,10 +16,11 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Set, Tuple
 
-from .dns_ct import doh_resolve, host_matches_any, inspect_tls_cert, url_matches_any
+from .dns_aid_linter import probe_lookalike_ans_badges
+from .dns_ct import doh_resolve, host_matches_any, inspect_tls_cert, registrable_domain, url_matches_any
 from .http_client import PoliteHttpClient, extract_html_title
 from .models import BrandTarget, Evidence, Finding
-from .taxonomy import FINDING_DEFINITIONS, owasp_list_for
+from .taxonomy import ALL_FINDING_DEFINITIONS, FINDING_DEFINITIONS, owasp_list_for
 
 LOOKALIKE_TEMPLATES = (
     "mcp-{brand}.com",
@@ -132,12 +133,28 @@ def _looks_like_live_mcp_endpoint(
     return False
 
 
+def _build_permutations(target: BrandTarget) -> List[str]:
+    brand = target.brand.lower()
+    permutations = [tmpl.format(brand=brand) for tmpl in LOOKALIKE_TEMPLATES]
+    primary_dom = registrable_domain(target.domain)
+    if "." in primary_dom:
+        sld, tld = primary_dom.split(".", 1)
+        for pref in ("agent", "mcp"):
+            if sld.startswith(pref) and len(sld) > len(pref) + 2 and not sld.startswith(f"{pref}-"):
+                cand = f"{pref}-{sld[len(pref):]}.{tld}"
+                if cand != primary_dom and cand not in permutations:
+                    permutations.append(cand)
+    return permutations
+
+
 def probe_vector3(
     client: PoliteHttpClient,
     target: BrandTarget,
     verified_domains: List[str],
 ) -> Tuple[Dict[str, Any], List[Finding]]:
-    """Run demoted silent Vector 3 lookalike check; alert ONLY on active MCP/agent endpoints or phishing."""
+    """Run demoted silent Vector 3 lookalike check; alert ONLY on active MCP/agent endpoints,
+    phishing interstitials, or spoofed ANS v2 `_ans-badge` host-binding mismatches.
+    """
     brand = target.brand.lower()
     # Skip very short/generic 2-char brands to avoid spurious lookalikes
     if len(brand) < 3:
@@ -147,12 +164,19 @@ def probe_vector3(
             "permutations_tested": 0,
             "active_agent_endpoints": [],
             "phishing_flagged": [],
+            "spoofed_ans_badge_hosts": [],
             "suppressed_count": 0,
+            "flags": {
+                "has_active_lookalike_agent_endpoint": False,
+                "has_active_phishing_lookalike": False,
+                "has_spoofed_ans_badge_lookalike": False,
+            },
         }, []
 
-    permutations = [tmpl.format(brand=brand) for tmpl in LOOKALIKE_TEMPLATES]
+    permutations = _build_permutations(target)
     active_agent_hits: List[Dict[str, Any]] = []
     phishing_hits: List[Dict[str, Any]] = []
+    spoofed_ans_badge_hits: List[Dict[str, Any]] = []
     suppressed_summary: Dict[str, int] = {
         "nxdomain": 0,
         "defensive_brand_owned": 0,
@@ -168,12 +192,24 @@ def probe_vector3(
             continue
 
         dns_info = doh_resolve(client, perm, ("A", "CNAME", "NS"), dnssec=False)
-        if not dns_info["resolves"]:
+        if not dns_info["delegated"]:
             suppressed_summary["nxdomain"] += 1
             continue
 
         a_records = set(dns_info["records"].get("A", []))
         ns_joined = " ".join(dns_info["records"].get("NS", [])).lower()
+
+        # Delegated lookalike without apex A/CNAME (e.g., subdomain-only agent lookalike like agent-haven.dev)
+        if not dns_info["resolves"]:
+            if "markmonitor" in ns_joined or "cscdns" in ns_joined:
+                suppressed_summary["defensive_brand_owned"] += 1
+                continue
+            spoofed_sub = probe_lookalike_ans_badges(client, perm)
+            if spoofed_sub:
+                spoofed_ans_badge_hits.extend(spoofed_sub)
+            else:
+                suppressed_summary["nxdomain"] += 1
+            continue
 
         # Fast-suppress known parking IPs before HTTP
         if a_records and a_records.issubset(PARKED_IPS):
@@ -240,7 +276,7 @@ def probe_vector3(
             suppressed_summary["parked_or_for_sale"] += 1
             continue
 
-        # Probe ONLY active agent/MCP endpoints on non-parked live lookalike
+        # Probe ONLY active agent/MCP endpoints & spoofed ANS badges on non-parked live lookalike
         active_signals: List[Dict[str, Any]] = []
         for wk_path in ("/.well-known/mcp.json", "/.well-known/agent.json", "/.well-known/oauth-protected-resource"):
             rwk = client.get(f"https://{perm}{wk_path}", timeout=3.5, max_bytes=32768, retries=0)
@@ -267,6 +303,10 @@ def probe_vector3(
                 }
             )
 
+        spoofed_for_perm = probe_lookalike_ans_badges(client, perm)
+        if spoofed_for_perm:
+            spoofed_ans_badge_hits.extend(spoofed_for_perm)
+
         if active_signals:
             active_agent_hits.append(
                 {
@@ -278,10 +318,10 @@ def probe_vector3(
                     "active_signals": active_signals,
                 }
             )
-        else:
+        elif not spoofed_for_perm:
             suppressed_summary["generic_non_agent_site"] += 1
 
-    # Generate high-signal findings ONLY when active agent endpoints or phishing confirmed
+    # Generate high-signal findings ONLY when active agent endpoints, phishing, or spoofed ANS badges confirmed
     findings: List[Finding] = []
     if active_agent_hits:
         defn = FINDING_DEFINITIONS["v3_active_lookalike_agent_endpoint"]
@@ -351,15 +391,54 @@ def probe_vector3(
             )
         )
 
+    if spoofed_ans_badge_hits:
+        defn = ALL_FINDING_DEFINITIONS["v3_spoofed_ans_badge_lookalike"]
+        evs = [
+            Evidence(
+                source="ans_badge",
+                locator=f"_ans-badge.{h['host']}",
+                detail=(
+                    f"Lookalike host `{h['host']}` publishes TXT `_ans-badge.{h['host']}` pointing to "
+                    f"receipt `{h['receipt_url']}` bound to `{h['receipt_host']}` (`ansName={h['ans_name']}`), "
+                    f"failing ANS v2 host-binding verification."
+                ),
+                raw=h,
+            )
+            for h in spoofed_ans_badge_hits
+        ]
+        findings.append(
+            Finding(
+                rule_id="v3_spoofed_ans_badge_lookalike",
+                vector="V3",
+                label=str(defn["label"]),
+                severity="critical",
+                title=(
+                    f"{len(spoofed_ans_badge_hits)} lookalike host(s) publish a spoofed ANS `_ans-badge` "
+                    f"copied from another FQDN"
+                ),
+                summary=(
+                    f"External lookalike host(s) ({', '.join(h['host'] for h in spoofed_ans_badge_hits)}) "
+                    f"publish an `_ans-badge` record referencing a transparency log receipt bound to "
+                    f"{', '.join(sorted({str(h['receipt_host']) for h in spoofed_ans_badge_hits}))} "
+                    f"rather than the dialed lookalike host."
+                ),
+                owasp=owasp_list_for("v3_spoofed_ans_badge_lookalike"),
+                evidence=evs,
+                recommendation=str(defn["recommendation"]),
+            )
+        )
+
     v3_data: Dict[str, Any] = {
         "skipped": False,
         "permutations_tested": len(permutations),
         "active_agent_endpoints": active_agent_hits,
         "phishing_flagged": phishing_hits,
+        "spoofed_ans_badge_hosts": spoofed_ans_badge_hits,
         "suppressed_noise": suppressed_summary,
         "flags": {
             "has_active_lookalike_agent_endpoint": len(active_agent_hits) > 0,
             "has_active_phishing_lookalike": len(phishing_hits) > 0,
+            "has_spoofed_ans_badge_lookalike": len(spoofed_ans_badge_hits) > 0,
         },
     }
     return v3_data, findings

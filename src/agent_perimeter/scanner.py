@@ -17,6 +17,7 @@ from .dns_ct import (
 )
 from .http_client import PoliteHttpClient
 from .models import AuditReport, BrandTarget
+from .rdap import enrich_report_rdap
 from .scoring import score_audit, sort_findings
 from .static_audit import inspect_npm_package_static, inspect_pypi_package_static
 from .vector1_supply_chain import probe_vector1
@@ -139,6 +140,7 @@ def audit_target(
     gh_cache: Optional[Dict[str, Dict[str, Any]]] = None,
     include_lookalike: bool = True,
     inspect_packages: bool = False,
+    enable_rdap: bool = True,
 ) -> AuditReport:
     """Execute a complete 100% passive audit on a single BrandTarget."""
     t0 = time.monotonic()
@@ -181,12 +183,29 @@ def audit_target(
             "permutations_tested": 0,
             "active_agent_endpoints": [],
             "phishing_flagged": [],
+            "spoofed_ans_badge_hosts": [],
             "flags": {
                 "has_active_lookalike_agent_endpoint": False,
                 "has_active_phishing_lookalike": False,
+                "has_spoofed_ans_badge_lookalike": False,
             },
         }
         v3_findings = []
+
+    # 5. Passive RFC 9083 RDAP enrichment for 3P proxy & lookalike domains (bounded, graceful fallback)
+    if enable_rdap:
+        rdap_summary = enrich_report_rdap(http, v1_data, v3_data, max_domains=15, v2_data=v2_data)
+    else:
+        rdap_summary = {
+            "enabled": False,
+            "queried_count": 0,
+            "resolved_count": 0,
+            "nod_30d_count": 0,
+            "nod_90d_count": 0,
+            "nod_30d_domains": [],
+            "nod_90d_domains": [],
+            "domains": {},
+        }
 
     all_findings = sort_findings([*v1_findings, *v2_findings, *v3_findings])
     score = score_audit(target, all_findings, v1_data, v2_data, v3_data)
@@ -208,6 +227,7 @@ def audit_target(
             "sibling_discovery": sibling_evidence,
             "github_authenticated": bool(http.github_token),
             "certspotter_authenticated": bool(http.certspotter_token),
+            "rdap": rdap_summary,
         },
     )
 
@@ -219,6 +239,7 @@ def audit_domain(
     include_lookalike: bool = True,
     enable_github_search: bool = True,
     inspect_packages: bool = False,
+    enable_rdap: bool = True,
 ) -> AuditReport:
     target = normalize_target(domain=domain, brand=brand, aliases=aliases)
     client = PoliteHttpClient(enable_github_search=enable_github_search)
@@ -227,6 +248,7 @@ def audit_domain(
         client=client,
         include_lookalike=include_lookalike,
         inspect_packages=inspect_packages,
+        enable_rdap=enable_rdap,
     )
 
 
@@ -258,6 +280,7 @@ def audit_batch(
     workers: int = 6,
     include_lookalike: bool = True,
     enable_github_search: bool = True,
+    enable_rdap: bool = True,
     on_complete: Optional[Callable[[int, int, AuditReport], None]] = None,
 ) -> Dict[str, Any]:
     """Run polite concurrent passive audits across a cohort of BrandTargets."""
@@ -271,7 +294,13 @@ def audit_batch(
     total = len(targets)
 
     def _run_one(tgt: BrandTarget) -> AuditReport:
-        return audit_target(tgt, client=client, gh_cache=gh_cache, include_lookalike=include_lookalike)
+        return audit_target(
+            tgt,
+            client=client,
+            gh_cache=gh_cache,
+            include_lookalike=include_lookalike,
+            enable_rdap=enable_rdap,
+        )
 
     with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
         fut_map = {pool.submit(_run_one, t): t for t in targets}

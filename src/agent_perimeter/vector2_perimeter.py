@@ -17,6 +17,7 @@ import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 import urllib.parse
 
+from .dns_aid_linter import lint_dns_aid, probe_chain_of_trust
 from .dns_ct import (
     doh_resolve,
     host_matches_any,
@@ -29,7 +30,7 @@ from .dns_ct import (
 )
 from .http_client import HttpResponse, PoliteHttpClient, extract_html_title
 from .models import BrandTarget, Evidence, Finding
-from .taxonomy import FINDING_DEFINITIONS, owasp_list_for
+from .taxonomy import ALL_FINDING_DEFINITIONS, FINDING_DEFINITIONS, owasp_list_for
 
 WELL_KNOWN_PATHS = (
     "/.well-known/oauth-protected-resource",
@@ -478,6 +479,51 @@ def probe_vector2(
                 )
 
     # ------------------------------------------------------------------
+    # 2E. Wire-Level DNS-AID (draft-02), DANE TLSA, ANS v2 & Chain-of-Trust
+    # ------------------------------------------------------------------
+    all_verified_domains = sorted({*verified_domains, *newly_verified_siblings})
+    dns_aid_linter = lint_dns_aid(
+        client,
+        primary,
+        verified_domains=all_verified_domains,
+        extra_hosts=[e["fqdn"] for e in live_mcp_endpoints],
+    )
+    if dns_aid_linter["apex_dnssec_ad"] and not dns_aid["apex_dnssec_ad"]:
+        dns_aid["apex_dnssec_ad"] = True
+    if dns_aid_linter["index_found"] or dns_aid_linter["agent_records"]:
+        dns_aid["dns_aid_present"] = True
+    if dns_aid_linter["index_dnssec_ad"] or any(
+        r.get("dnssec_ad") for r in (dns_aid_linter.get("agent_records") or [])
+    ):
+        dns_aid["dns_aid_dnssec_ad"] = True
+
+    cot_hosts: List[str] = [primary]
+    if dns_aid_linter.get("catalog_host"):
+        cot_hosts.append(str(dns_aid_linter["catalog_host"]))
+    for rec in dns_aid_linter.get("agent_records") or []:
+        th = rec.get("target_host")
+        if th and th not in cot_hosts:
+            cot_hosts.append(th)
+    chain_of_trust = probe_chain_of_trust(client, cot_hosts)
+
+    # Build verified first-party agent FQDNs (union of first-party live MCP + verified DNS-AID/catalog hosts)
+    spoofed_host_set = {s["host"] for s in (dns_aid_linter.get("spoofed_ans_badge_hosts") or [])}
+    mismatch_host_set = set(dns_aid_linter.get("card_hash_mismatch_hosts") or [])
+    verified_first_party_agent_fqdns: List[str] = list(
+        dns_aid_linter.get("verified_first_party_agent_fqdns") or []
+    )
+    for ep_entry in live_mcp_endpoints:
+        fq = ep_entry.get("fqdn")
+        if (
+            fq
+            and host_matches_any(fq, all_verified_domains)
+            and fq not in spoofed_host_set
+            and fq not in mismatch_host_set
+            and fq not in verified_first_party_agent_fqdns
+        ):
+            verified_first_party_agent_fqdns.append(fq)
+
+    # ------------------------------------------------------------------
     # Generate Hardened V2 Findings (Zero Phase 0 FPs)
     # ------------------------------------------------------------------
     findings: List[Finding] = []
@@ -660,8 +706,123 @@ def probe_vector2(
             )
         )
 
+    # Finding 2E: Wire-level DNS-AID agent card SHA-256 mismatch (key65400 vs key65401)
+    mismatched_card_recs = [
+        r
+        for r in (dns_aid_linter.get("agent_records") or [])
+        if (r.get("card_verification") or {}).get("status") == "mismatch"
+    ]
+    if mismatched_card_recs:
+        defn = ALL_FINDING_DEFINITIONS["v2_dns_aid_card_hash_mismatch"]
+        evs = [
+            Evidence(
+                source="dns_aid_linter",
+                locator=str((r.get("card_verification") or {}).get("cap_url") or r.get("qname")),
+                detail=(
+                    f"SVCB `{r['qname']}` declares `key65401` (`cap-sha256`) = "
+                    f"`{r['card_verification']['expected_sha256']}` but live card at "
+                    f"`{r['card_verification']['cap_url']}` hashed to "
+                    f"`{r['card_verification']['computed_sha256']}`."
+                ),
+                raw=r["card_verification"],
+            )
+            for r in mismatched_card_recs
+        ]
+        findings.append(
+            Finding(
+                rule_id="v2_dns_aid_card_hash_mismatch",
+                vector="V2",
+                label=str(defn["label"]),
+                severity="high",
+                title=(
+                    f"{len(mismatched_card_recs)} DNS-AID agent card(s) failed `key65401` (`cap-sha256`) "
+                    f"digest verification"
+                ),
+                summary=(
+                    f"The live agent card served at the `key65400` (`cap`) URL on "
+                    f"{', '.join(r['target_host'] for r in mismatched_card_recs)} does not match the "
+                    f"SHA-256 digest published in DNS SVCB `key65401`, indicating stale DNS pin or card tampering."
+                ),
+                owasp=owasp_list_for("v2_dns_aid_card_hash_mismatch"),
+                evidence=evs,
+                recommendation=str(defn["recommendation"]),
+            )
+        )
+
+    # Finding 2F: ANS v2 `_ans-badge` host-binding mismatch
+    spoofed_v2_badges = dns_aid_linter.get("spoofed_ans_badge_hosts") or []
+    if spoofed_v2_badges:
+        defn = ALL_FINDING_DEFINITIONS["v2_ans_badge_host_mismatch"]
+        evs = [
+            Evidence(
+                source="ans_badge",
+                locator=f"_ans-badge.{s['host']}",
+                detail=(
+                    f"TXT `_ans-badge.{s['host']}` references receipt `{s['receipt_url']}` whose "
+                    f"bound host `{s['receipt_host']}` (`ansName={s['ans_name']}`) does not match "
+                    f"dialed host `{s['host']}`."
+                ),
+                raw=s,
+            )
+            for s in spoofed_v2_badges
+        ]
+        findings.append(
+            Finding(
+                rule_id="v2_ans_badge_host_mismatch",
+                vector="V2",
+                label=str(defn["label"]),
+                severity="high",
+                title=(
+                    f"{len(spoofed_v2_badges)} host(s) publish an ANS `_ans-badge` bound to a different FQDN"
+                ),
+                summary=(
+                    f"Host(s) ({', '.join(s['host'] for s in spoofed_v2_badges)}) publish an `_ans-badge` "
+                    f"record pointing to a transparency log receipt bound to another host "
+                    f"({', '.join(sorted({str(s['receipt_host']) for s in spoofed_v2_badges}))}), "
+                    f"failing ANS v2 host-binding verification."
+                ),
+                owasp=owasp_list_for("v2_ans_badge_host_mismatch"),
+                evidence=evs,
+                recommendation=str(defn["recommendation"]),
+            )
+        )
+
+    # Finding 2G: DANE TLSA published without DNSSEC validation (AD=false)
+    unsigned_dane_hosts = dns_aid_linter.get("dane_without_dnssec_hosts") or []
+    if unsigned_dane_hosts:
+        defn = ALL_FINDING_DEFINITIONS["v2_dane_tlsa_without_dnssec"]
+        evs = [
+            Evidence(
+                source="dns_doh",
+                locator=f"_443._tcp.{h}",
+                detail=f"TLSA record(s) published at `_443._tcp.{h}` returned DNSSEC AD=false.",
+                raw={"host": h, "qname": f"_443._tcp.{h}", "dnssec_ad": False},
+            )
+            for h in unsigned_dane_hosts
+        ]
+        findings.append(
+            Finding(
+                rule_id="v2_dane_tlsa_without_dnssec",
+                vector="V2",
+                label=str(defn["label"]),
+                severity="medium",
+                title=(
+                    f"{len(unsigned_dane_hosts)} agent host(s) publish DANE TLSA records without DNSSEC (AD=false)"
+                ),
+                summary=(
+                    f"Host(s) ({', '.join(unsigned_dane_hosts)}) publish `_443._tcp` TLSA records without "
+                    f"DNSSEC validation (`AD=false`), invalidating cryptographic DANE certificate binding."
+                ),
+                owasp=owasp_list_for("v2_dane_tlsa_without_dnssec"),
+                evidence=evs,
+                recommendation=str(defn["recommendation"]),
+            )
+        )
+
     v2_data: Dict[str, Any] = {
         "dns_aid": dns_aid,
+        "dns_aid_linter": dns_aid_linter,
+        "chain_of_trust": chain_of_trust,
         "ct_discovery": ct_result,
         "wildcard_dns_detected": has_wildcard,
         "root_well_known": {k: v for k, v in root_well_known.items() if v.get("valid") or v.get("status") == 401},
@@ -672,6 +833,18 @@ def probe_vector2(
         "flags": {
             "apex_dnssec_enabled": dns_aid["apex_dnssec_ad"],
             "dns_aid_present": dns_aid["dns_aid_present"],
+            "dns_aid_index_present": bool(dns_aid_linter["index_found"]),
+            "dns_aid_catalog_separated": bool(dns_aid_linter["catalog_separated"]),
+            "dns_aid_agent_count": len(dns_aid_linter["agent_records"]),
+            "dns_aid_card_hash_verified_count": int(dns_aid_linter["card_hash_verified_count"]),
+            "dns_aid_card_hash_mismatch_count": len(dns_aid_linter["card_hash_mismatch_hosts"]),
+            "dane_tlsa_present": len(dns_aid_linter["dane_tlsa_hosts"]) > 0,
+            "dane_tlsa_count": len(dns_aid_linter["dane_tlsa_hosts"]),
+            "ans_badge_present": len(dns_aid_linter["ans_badges_checked"]) > 0,
+            "ans_badge_verified_count": len(dns_aid_linter["ans_badge_verified_hosts"]),
+            "spoofed_ans_badge_count": len(spoofed_v2_badges),
+            "verified_first_party_agent_fqdns": verified_first_party_agent_fqdns,
+            "chain_of_trust_surfaces": list(chain_of_trust["surfaces_detected"]),
             "ct_provider_used": ct_result.get("provider"),
             "ct_query_ok": bool(ct_result.get("ok")),
             "live_mcp_endpoint_count": len(live_mcp_endpoints),

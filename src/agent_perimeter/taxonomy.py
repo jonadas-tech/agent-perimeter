@@ -193,13 +193,74 @@ FINDING_DEFINITIONS: Dict[str, Dict[str, object]] = {
 }
 
 
+# v0.3.0 wire-level DNS-AID & ANS v2 protocol finding definitions (kept separate from the
+# 6+6 core FINDING_DEFINITIONS MECE matrix for backward compatibility, merged in ALL_FINDING_DEFINITIONS).
+PROTOCOL_FINDING_DEFINITIONS: Dict[str, Dict[str, object]] = {
+    "v2_dns_aid_card_hash_mismatch": {
+        "vector": "V2",
+        "axis": "first_party_control",
+        "label": "DNS-AID Agent Card Digest Mismatch",
+        "default_severity": "high",
+        "owasp": [OWASP_ASI["ASI04"], OWASP_ASI["ASI07"], OWASP_MCP["MCP03:2025"], OWASP_MCP["MCP04:2025"]],
+        "recommendation": (
+            "Verify the agent card served at the DNS-AID `cap` (`key65400`) URL against your signed "
+            "deployment artifact and update the DNS `cap-sha256` (`key65401`) SVCB parameter atomically "
+            "during releases so clients can detect card tampering."
+        ),
+    },
+    "v2_ans_badge_host_mismatch": {
+        "vector": "V2",
+        "axis": "first_party_control",
+        "label": "ANS Badge Host-Binding Mismatch",
+        "default_severity": "high",
+        "owasp": [OWASP_ASI["ASI03"], OWASP_ASI["ASI07"], OWASP_MCP["MCP07:2025"]],
+        "recommendation": (
+            "Publish an `_ans-badge` TXT record whose transparency log receipt `ansName` and `agent.host` "
+            "strictly match the host serving the agent; investigate any badge copied from another domain."
+        ),
+    },
+    "v2_dane_tlsa_without_dnssec": {
+        "vector": "V2",
+        "axis": "first_party_control",
+        "label": "DANE TLSA Published Without DNSSEC",
+        "default_severity": "medium",
+        "owasp": [OWASP_ASI["ASI07"], OWASP_MCP["MCP07:2025"]],
+        "recommendation": (
+            "Enable and validate DNSSEC (`AD=true`) on zones publishing `_443._tcp` DANE TLSA records; "
+            "unsigned TLSA records cannot provide cryptographic TLS certificate binding per RFC 6698."
+        ),
+    },
+    "v3_spoofed_ans_badge_lookalike": {
+        "vector": "V3",
+        "axis": "external_threat",
+        "label": "Lookalike Domain With Spoofed ANS Badge",
+        "default_severity": "critical",
+        "owasp": [OWASP_ASI["ASI04"], OWASP_ASI["ASI07"], OWASP_ASI["ASI09"], OWASP_MCP["MCP09:2025"]],
+        "recommendation": (
+            "Investigate third-party lookalike infrastructure publishing a copied `_ans-badge` record "
+            "bound to another host's transparency log receipt, block the lookalike host in protective "
+            "DNS/egress policies, and initiate brand protection review after confirming ownership."
+        ),
+    },
+}
+
+ALL_FINDING_DEFINITIONS: Dict[str, Dict[str, object]] = {
+    **FINDING_DEFINITIONS,
+    **PROTOCOL_FINDING_DEFINITIONS,
+}
+
+
+def get_finding_definition(rule_id: str) -> Dict[str, object]:
+    return ALL_FINDING_DEFINITIONS[rule_id]
+
+
 def owasp_list_for(rule_id: str) -> List[OwaspRef]:
-    defn = FINDING_DEFINITIONS[rule_id]
+    defn = ALL_FINDING_DEFINITIONS[rule_id]
     return list(defn["owasp"])  # type: ignore[arg-type]
 
 
 def axis_for(rule_id: str) -> str:
-    defn = FINDING_DEFINITIONS.get(rule_id)
+    defn = ALL_FINDING_DEFINITIONS.get(rule_id)
     if defn and defn.get("axis"):
         return str(defn["axis"])
     return "external_threat"

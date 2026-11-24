@@ -19,11 +19,14 @@
 Run directly with [`uvx`](https://docs.astral.sh/uv/) (no global install required):
 
 ```bash
-# Single-domain audit -> JSON + single-file HTML brief + SARIF 2.1.0
+# Single-domain audit -> JSON + single-file HTML brief + SARIF 2.1.0 + Protective DNS RPZ / domain feed
 uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter audit example.com \
   --json report.json \
   --html report.html \
-  --sarif report.sarif
+  --sarif report.sarif \
+  --rpz policy.rpz \
+  --domain-feed feed.json \
+  --rpz-mode block
 
 # Include passive in-memory static inspection of up to 10 unverified npm/PyPI tarballs
 uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter audit example.com \
@@ -35,6 +38,12 @@ uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter a
   --baseline baseline.json \
   --fail-on-new \
   --sarif report.sarif
+
+# Longitudinal cohort trend analysis (supports raw batch JSON or anonymized study JSON)
+uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter trend \
+  cohort_2026_q4.json cohort_2027_q1.json \
+  --label-prev 2026-Q4 --label-curr 2027-Q1 \
+  --json trend.json --md trend.md
 ```
 
 Batch-audit a list of domains and emit an anonymized dataset + Markdown summary:
@@ -96,15 +105,15 @@ jobs:
 
 | Vector | Focus | Passive Signals Verified | OWASP Mapping |
 |---|---|---|---|
-| **V1 (Primary)** | **MCP Supply-Chain & Brand Provenance** | Correlates Official MCP Registry (`/v0.1/servers` via broad + targeted reverse-DNS queries), npm, PyPI, and GitHub. Anchors official assets via reverse-DNS, verified sibling domains, GitHub org `blog`/`email`, and cross-registry maintainer emails; strips hosting prefixes (`io.github.*`, `app.vercel.*`, `dev.workers.*`), skips unpublished tombstones, separates `0.0.1-security` holding packages, and filters homonyms. Flags **URL-Path Token Exposure**, **Unverified 3rd-Party Hosted Proxy**, **Unverified Package / Free-Email Maintainer**, and **Official Registry Vacuum**. Optional `--inspect-packages` statically inspects public tarballs/wheels in memory (`<=5 MB`, zero execution). | `ASI03`, `ASI04`, `ASI05`, `ASI07`, `ASI09` / `MCP01:2025`, `MCP04:2025`, `MCP05:2025`, `MCP09:2025` |
-| **V2 (Secondary)** | **External Perimeter, DNS-AID & OAuth Hygiene** | Queries DoH (`do=1`) for IETF DNS-AID (`_agent`/`_mcp` `SVCB`/`TXT`/`SRV`) and apex DNSSEC (`AD=true`); discovers active `mcp.*`/`agents.*` endpoints via CertSpotter CT (`crt.sh` fallback) and live TLS SANs; checks RFC 9728 (`/.well-known/oauth-protected-resource` and `WWW-Authenticate` `resource_metadata`), **Broad OAuth Scope Declaration**, and **Cross-Domain Perimeter Drift**. | `ASI03`, `ASI04`, `ASI07` / `MCP02:2025`, `MCP07:2025`, `MCP09:2025` |
-| **V3 (Silent Sub-Check)** | **Active Lookalike Infrastructure** | Suppresses domain parking, HTTP 523 squatters, defensive brand registrations, and HTML catch-alls. Emits findings only for **Active Lookalike Agent Endpoint** (`/.well-known/mcp.json` or live JSON-RPC/SSE `/mcp`) or **Phishing-Warning Lookalike Domain** (HTTP 403/451 third-party warning interstitials). | `ASI04`, `ASI07`, `ASI09` / `MCP04:2025`, `MCP09:2025` |
+| **V1 (Primary)** | **MCP Supply-Chain & Brand Provenance** | Correlates Official MCP Registry (`/v0.1/servers` via broad + targeted reverse-DNS queries), npm, PyPI, and GitHub. Anchors official assets via reverse-DNS, verified sibling domains, GitHub org `blog`/`email`, and cross-registry maintainer emails; strips hosting prefixes (`io.github.*`, `app.vercel.*`, `dev.workers.*`), skips unpublished tombstones, separates `0.0.1-security` holding packages, and filters homonyms. Flags **URL-Path Token Exposure**, **Unverified 3rd-Party Hosted Proxy**, **Unverified Package / Free-Email Maintainer**, and **Official Registry Vacuum**, with passive RFC 9083 RDAP domain-age/registrar profiling (`NOD <30d` / `<90d`; disable via `--no-rdap`). Optional `--inspect-packages` statically inspects public tarballs/wheels in memory (`<=5 MB`, zero execution). | `ASI03`, `ASI04`, `ASI05`, `ASI07`, `ASI09` / `MCP01:2025`, `MCP04:2025`, `MCP05:2025`, `MCP09:2025` |
+| **V2 (Secondary)** | **External Perimeter, Wire-Level DNS-AID / ANS v2 & OAuth Hygiene** | Queries DoH (`do=1`) for wire-level IETF DNS-AID (`draft-02`: `_index._agents`, `catalog.<domain>` separation, RFC 9460 `SVCB` private keys `key65400`/`key65401`/`key65402`/`key65405`, passive `cap-sha256` card integrity verification), apex DNSSEC (`AD=true`), DANE `_443._tcp` `TLSA`, ANS v2 `_ans-badge` host-binding verification, and complementary Chain-of-Trust surfaces (`/.well-known/ard.json`, `/.well-known/ucp`, SPIFFE bundles/SVIDs, `_agent-keys` TXT). Discovers active `mcp.*`/`agents.*` endpoints via CertSpotter CT (`crt.sh` fallback) and live TLS SANs; checks RFC 9728 (`/.well-known/oauth-protected-resource` and `WWW-Authenticate` `resource_metadata`), **Broad OAuth Scope Declaration**, and **Cross-Domain Perimeter Drift**. | `ASI03`, `ASI04`, `ASI07` / `MCP02:2025`, `MCP07:2025`, `MCP09:2025` |
+| **V3 (Silent Sub-Check)** | **Active Lookalike Infrastructure** | Suppresses domain parking, HTTP 523 squatters, defensive brand registrations, and HTML catch-alls. Emits findings only for **Active Lookalike Agent Endpoint** (`/.well-known/mcp.json` or live JSON-RPC/SSE `/mcp`), **Spoofed `_ans-badge` Host-Binding Mismatch** on lookalike agent hosts, or **Phishing-Warning Lookalike Domain** (HTTP 403/451 third-party warning interstitials), enriched with passive RDAP registration age. | `ASI04`, `ASI07`, `ASI09` / `MCP04:2025`, `MCP09:2025` |
 
 ---
 
 ## Outputs & Risk Model
 
-`agent-perimeter` produces four artifacts: **structured JSON** (schema `2.0`), **SARIF 2.1.0**, **baseline diff output**, and a **self-contained single-file HTML executive brief** (zero external CDN dependencies, print-to-PDF ready).
+`agent-perimeter` produces six artifacts: **structured JSON** (schema `2.0`), **SARIF 2.1.0**, **baseline diff output**, a **self-contained single-file HTML executive brief** (zero external CDN dependencies, print-to-PDF ready), **open-standard Protective DNS RPZ & JSON domain feeds** (`--rpz`, `--domain-feed`, `--rpz-mode {block,audit}`, with `rpz-passthru.` allowlists for verified first-party endpoints and self-DoS protection keeping shared multi-tenant cloud platforms audit-only), and **longitudinal cohort trend reports** (`agent-perimeter trend`).
 
 Every audit reports two independent operational dimensions mapped to an **Action Posture** and split by remediation owner (**Platform / API Engineering** vs. **SecOps / Brand Protection**):
 
