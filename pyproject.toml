@@ -5,9 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "agent-perimeter"
 version = "0.3.0"
-description = "100% passive external attack surface scanner for agentic brand impersonation, MCP supply-chain exposure, and DNS-AID/OAuth perimeter hygiene."
+description = "Passive external attack surface scanner for MCP supply-chain provenance, agent discovery, and DNS-AID/OAuth perimeter hygiene."
 readme = "README.md"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [
     { name = "Jonadas Techio" },
@@ -27,7 +28,6 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -35,6 +35,12 @@ classifiers = [
     "Topic :: Security",
 ]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/jonadas-tech/agent-perimeter"
+Repository = "https://github.com/jonadas-tech/agent-perimeter"
+Documentation = "https://github.com/jonadas-tech/agent-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md"
+Issues = "https://github.com/jonadas-tech/agent-perimeter/issues"
 
 [project.scripts]
 agent-perimeter = "agent_perimeter.cli:main"

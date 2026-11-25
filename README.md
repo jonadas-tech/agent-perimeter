@@ -3,8 +3,8 @@
 **Passive External Attack Surface Management (EASM) CLI for MCP supply-chain provenance, external agent discovery, and OAuth/DNS hygiene.**
 
 [![CI](https://github.com/jonadas-tech/agent-perimeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jonadas-tech/agent-perimeter/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](pyproject.toml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/jonadas-tech/agent-perimeter/blob/main/LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](https://github.com/jonadas-tech/agent-perimeter/blob/main/pyproject.toml)
 
 `agent-perimeter` audits what autonomous AI agents and developers encounter *outside* your corporate perimeter when looking up your brand: unverified third-party hosted MCP proxies, unscoped npm/PyPI package collisions, Official MCP Registry gaps, internet-facing `mcp.*` endpoints missing RFC 9728 OAuth metadata, broad OAuth scopes, DNSSEC / IETF DNS-AID posture, and active phishing-warning agent lookalikes.
 
@@ -124,13 +124,13 @@ Every audit reports two independent operational dimensions mapped to an **Action
 
 ## Empirical Study: *State of External Agentic Exposure 2027*
 
-![State of External Agentic Exposure 2027 — Top 100 Brands Overview](docs/assets/top100_exposure_chart.svg)
+![State of External Agentic Exposure 2027 — Top 100 Brands Overview](https://raw.githubusercontent.com/jonadas-tech/agent-perimeter/main/docs/assets/top100_exposure_chart.svg)
 
 We ran a 100% passive baseline across **100 major public brands** (`50` Traditional Fortune/S&P 500 enterprises + `50` SaaS, Fintech, Cloud, Cybersecurity, and AI brands), followed by a read-only in-memory static census of **632 of 642 unique unverified brand-named npm/PyPI MCP packages** discovered in the cohort:
 
-- **Full anonymized report:** [`docs/state_of_external_agentic_exposure_2027.md`](docs/state_of_external_agentic_exposure_2027.md)
-- **Anonymized brand dataset (`N=100`):** [`datasets/study_2027_anonymized.json`](datasets/study_2027_anonymized.json)
-- **Anonymized package static census (`N=632`):** [`datasets/static_census_2027_anonymized.json`](datasets/static_census_2027_anonymized.json)
+- **Full anonymized report:** [`docs/state_of_external_agentic_exposure_2027.md`](https://github.com/jonadas-tech/agent-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md)
+- **Anonymized brand dataset (`N=100`):** [`datasets/study_2027_anonymized.json`](https://github.com/jonadas-tech/agent-perimeter/blob/main/datasets/study_2027_anonymized.json)
+- **Anonymized package static census (`N=632`):** [`datasets/static_census_2027_anonymized.json`](https://github.com/jonadas-tech/agent-perimeter/blob/main/datasets/static_census_2027_anonymized.json)
 
 ### Key Verified Findings
 
@@ -161,8 +161,8 @@ uv run --python 3.12 pytest -v
 
 ## Responsible Disclosure & Neutrality
 
-All published study datasets strip target domain/brand identifiers and sensitive live misconfiguration URLs. Classifications describe verifiable provenance properties and never assert malicious intent by commercial aggregators or community maintainers. See [SECURITY.md](SECURITY.md) for full passive-only guarantees and disclosure policy.
+All published study datasets strip target domain/brand identifiers and sensitive live misconfiguration URLs. Classifications describe verifiable provenance properties and never assert malicious intent by commercial aggregators or community maintainers. See [SECURITY.md](https://github.com/jonadas-tech/agent-perimeter/blob/main/SECURITY.md) for full passive-only guarantees and disclosure policy.
 
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE).
+Apache-2.0 — see [LICENSE](https://github.com/jonadas-tech/agent-perimeter/blob/main/LICENSE).
