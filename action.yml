@@ -1,0 +1,95 @@
+name: "Agentic Perimeter Audit"
+description: "Passive external MCP supply-chain provenance, DNS-AID/DNSSEC, and RFC 9728 OAuth perimeter scanner with SARIF 2.1.0 output."
+author: "Jonadas Techio"
+
+branding:
+  icon: "shield"
+  color: "blue"
+
+inputs:
+  domain:
+    description: "Target primary domain to audit passively (e.g. example.com)."
+    required: true
+  version:
+    description: "agentic-perimeter PyPI version to execute via uvx."
+    required: false
+    default: "0.3.0"
+  sarif-file:
+    description: "Output path for SARIF 2.1.0 report."
+    required: false
+    default: "agentic-perimeter.sarif"
+  json-file:
+    description: "Output path for structured JSON report."
+    required: false
+    default: "agentic-perimeter.json"
+  html-file:
+    description: "Optional output path for single-file offline HTML brief."
+    required: false
+    default: ""
+  rpz-file:
+    description: "Optional output path for BIND/RFC Protective DNS RPZ policy."
+    required: false
+    default: ""
+  rpz-mode:
+    description: "Protective DNS RPZ enforcement mode (audit or block)."
+    required: false
+    default: "audit"
+  baseline-file:
+    description: "Optional path to a previous JSON report for drift comparison."
+    required: false
+    default: ""
+  fail-on-new:
+    description: "Exit non-zero (code 2) if new external exposures appear relative to baseline-file."
+    required: false
+    default: "false"
+  inspect-packages:
+    description: "Run passive in-memory static inspection on up to 10 unverified npm/PyPI tarballs."
+    required: false
+    default: "false"
+
+outputs:
+  sarif-file:
+    description: "Path to the generated SARIF 2.1.0 file."
+    value: ${{ inputs.sarif-file }}
+  json-file:
+    description: "Path to the generated JSON report file."
+    value: ${{ inputs.json-file }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: Run passive external agentic perimeter audit
+      shell: bash
+      env:
+        INPUT_DOMAIN: ${{ inputs.domain }}
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_SARIF: ${{ inputs.sarif-file }}
+        INPUT_JSON: ${{ inputs.json-file }}
+        INPUT_HTML: ${{ inputs.html-file }}
+        INPUT_RPZ: ${{ inputs.rpz-file }}
+        INPUT_RPZ_MODE: ${{ inputs.rpz-mode }}
+        INPUT_BASELINE: ${{ inputs.baseline-file }}
+        INPUT_FAIL_ON_NEW: ${{ inputs.fail-on-new }}
+        INPUT_INSPECT_PACKAGES: ${{ inputs.inspect-packages }}
+      run: |
+        set -euo pipefail
+        args=("audit" "$INPUT_DOMAIN" "--sarif" "$INPUT_SARIF" "--json" "$INPUT_JSON")
+        if [[ -n "$INPUT_HTML" ]]; then
+          args+=("--html" "$INPUT_HTML")
+        fi
+        if [[ -n "$INPUT_RPZ" ]]; then
+          args+=("--rpz" "$INPUT_RPZ" "--rpz-mode" "$INPUT_RPZ_MODE")
+        fi
+        if [[ -n "$INPUT_BASELINE" ]]; then
+          args+=("--baseline" "$INPUT_BASELINE")
+        fi
+        if [[ "$INPUT_FAIL_ON_NEW" == "true" ]]; then
+          args+=("--fail-on-new")
+        fi
+        if [[ "$INPUT_INSPECT_PACKAGES" == "true" ]]; then
+          args+=("--inspect-packages")
+        fi
+        uvx --python 3.12 "agentic-perimeter==${INPUT_VERSION}" "${args[@]}"
