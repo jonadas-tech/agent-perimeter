@@ -6,9 +6,9 @@ import json
 import threading
 from typing import Any, Dict
 
-from agent_perimeter.http_client import HttpResponse
-from agent_perimeter.models import BrandTarget
-import agent_perimeter.vector3_lookalike as v3mod
+from agentic_perimeter.http_client import HttpResponse
+from agentic_perimeter.models import BrandTarget
+import agentic_perimeter.vector3_lookalike as v3mod
 
 
 class FakeV3Client:

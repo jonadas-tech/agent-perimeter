@@ -1,12 +1,12 @@
-# `agent-perimeter`
+# `agentic-perimeter`
 
 **Passive External Attack Surface Management (EASM) CLI for MCP supply-chain provenance, external agent discovery, and OAuth/DNS hygiene.**
 
-[![CI](https://github.com/jonadas-tech/agent-perimeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jonadas-tech/agent-perimeter/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/jonadas-tech/agent-perimeter/blob/main/LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](https://github.com/jonadas-tech/agent-perimeter/blob/main/pyproject.toml)
+[![CI](https://github.com/jonadas-tech/agentic-perimeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jonadas-tech/agentic-perimeter/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/jonadas-tech/agentic-perimeter/blob/main/LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](https://github.com/jonadas-tech/agentic-perimeter/blob/main/pyproject.toml)
 
-`agent-perimeter` audits what autonomous AI agents and developers encounter *outside* your corporate perimeter when looking up your brand: unverified third-party hosted MCP proxies, unscoped npm/PyPI package collisions, Official MCP Registry gaps, internet-facing `mcp.*` endpoints missing RFC 9728 OAuth metadata, broad OAuth scopes, DNSSEC / IETF DNS-AID posture, and active phishing-warning agent lookalikes.
+`agentic-perimeter` audits what autonomous AI agents and developers encounter *outside* your corporate perimeter when looking up your brand: unverified third-party hosted MCP proxies, unscoped npm/PyPI package collisions, Official MCP Registry gaps, internet-facing `mcp.*` endpoints missing RFC 9728 OAuth metadata, broad OAuth scopes, DNSSEC / IETF DNS-AID posture, and active phishing-warning agent lookalikes.
 
 - **100% Passive & Read-Only:** Public APIs, DNS-over-HTTPS, Certificate Transparency, TLS SANs, and standard `/.well-known/*` discovery paths only. Zero port scanning, zero brute-forcing, zero remote `tools/call`, zero execution of untrusted packages.
 - **Zero Runtime Dependencies:** Pure Python 3.11+ standard library; runs instantly via `uvx`.
@@ -16,11 +16,11 @@
 
 ## Quickstart
 
-Run directly with [`uvx`](https://docs.astral.sh/uv/) (no global install required):
+Run directly from PyPI with [`uvx`](https://docs.astral.sh/uv/) (no global install required):
 
 ```bash
 # Single-domain audit -> JSON + single-file HTML brief + SARIF 2.1.0 + Protective DNS RPZ / domain feed
-uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter audit example.com \
+uvx agentic-perimeter audit example.com \
   --json report.json \
   --html report.html \
   --sarif report.sarif \
@@ -29,18 +29,18 @@ uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter a
   --rpz-mode block
 
 # Include passive in-memory static inspection of up to 10 unverified npm/PyPI tarballs
-uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter audit example.com \
+uvx agentic-perimeter audit example.com \
   --inspect-packages \
   --json report.json
 
 # Continuous monitoring: diff against a saved baseline and exit 2 on new exposures
-uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter audit example.com \
+uvx agentic-perimeter audit example.com \
   --baseline baseline.json \
   --fail-on-new \
   --sarif report.sarif
 
 # Longitudinal cohort trend analysis (supports raw batch JSON or anonymized study JSON)
-uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter trend \
+uvx agentic-perimeter trend \
   cohort_2026_q4.json cohort_2027_q1.json \
   --label-prev 2026-Q4 --label-curr 2027-Q1 \
   --json trend.json --md trend.md
@@ -49,7 +49,7 @@ uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter t
 Batch-audit a list of domains and emit an anonymized dataset + Markdown summary:
 
 ```bash
-uvx --from git+https://github.com/jonadas-tech/agent-perimeter agent-perimeter batch datasets/top100_brands.json \
+uvx agentic-perimeter batch datasets/top100_brands.json \
   --output raw_batch.json \
   --anonymized-out study_anonymized.json \
   --study-md study_summary.md \
@@ -64,7 +64,7 @@ Optional environment variables:
 
 ## Continuous Monitoring in GitHub Actions (SARIF + Baseline Diff)
 
-Drop a weekly passive check into `.github/workflows/agent-perimeter.yml` to surface new external MCP exposures directly in GitHub Code Scanning:
+Drop a weekly passive check into `.github/workflows/agentic-perimeter.yml` to surface new external MCP exposures directly in GitHub Code Scanning:
 
 ```yaml
 name: External Agentic Perimeter Monitor
@@ -88,15 +88,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          uvx --python 3.12 --from git+https://github.com/jonadas-tech/agent-perimeter \
-            agent-perimeter audit example.com \
+          uvx --python 3.12 agentic-perimeter audit example.com \
             --json latest.json \
             --html latest.html \
-            --sarif agent-perimeter.sarif
+            --sarif agentic-perimeter.sarif
       - name: Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: agent-perimeter.sarif
+          sarif_file: agentic-perimeter.sarif
 ```
 
 ---
@@ -113,7 +112,7 @@ jobs:
 
 ## Outputs & Risk Model
 
-`agent-perimeter` produces six artifacts: **structured JSON** (schema `2.0`), **SARIF 2.1.0**, **baseline diff output**, a **self-contained single-file HTML executive brief** (zero external CDN dependencies, print-to-PDF ready), **open-standard Protective DNS RPZ & JSON domain feeds** (`--rpz`, `--domain-feed`, `--rpz-mode {block,audit}`, with `rpz-passthru.` allowlists for verified first-party endpoints and self-DoS protection keeping shared multi-tenant cloud platforms audit-only), and **longitudinal cohort trend reports** (`agent-perimeter trend`).
+`agentic-perimeter` produces six artifacts: **structured JSON** (schema `2.0`), **SARIF 2.1.0**, **baseline diff output**, a **self-contained single-file HTML executive brief** (zero external CDN dependencies, print-to-PDF ready), **open-standard Protective DNS RPZ & JSON domain feeds** (`--rpz`, `--domain-feed`, `--rpz-mode {block,audit}`, with `rpz-passthru.` allowlists for verified first-party endpoints and self-DoS protection keeping shared multi-tenant cloud platforms audit-only), and **longitudinal cohort trend reports** (`agentic-perimeter trend`).
 
 Every audit reports two independent operational dimensions mapped to an **Action Posture** and split by remediation owner (**Platform / API Engineering** vs. **SecOps / Brand Protection**):
 
@@ -124,13 +123,13 @@ Every audit reports two independent operational dimensions mapped to an **Action
 
 ## Empirical Study: *State of External Agentic Exposure 2027*
 
-![State of External Agentic Exposure 2027 — Top 100 Brands Overview](https://raw.githubusercontent.com/jonadas-tech/agent-perimeter/main/docs/assets/top100_exposure_chart.svg)
+![State of External Agentic Exposure 2027 — Top 100 Brands Overview](https://raw.githubusercontent.com/jonadas-tech/agentic-perimeter/main/docs/assets/top100_exposure_chart.svg)
 
 We ran a 100% passive baseline across **100 major public brands** (`50` Traditional Fortune/S&P 500 enterprises + `50` SaaS, Fintech, Cloud, Cybersecurity, and AI brands), followed by a read-only in-memory static census of **632 of 642 unique unverified brand-named npm/PyPI MCP packages** discovered in the cohort:
 
-- **Full anonymized report:** [`docs/state_of_external_agentic_exposure_2027.md`](https://github.com/jonadas-tech/agent-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md)
-- **Anonymized brand dataset (`N=100`):** [`datasets/study_2027_anonymized.json`](https://github.com/jonadas-tech/agent-perimeter/blob/main/datasets/study_2027_anonymized.json)
-- **Anonymized package static census (`N=632`):** [`datasets/static_census_2027_anonymized.json`](https://github.com/jonadas-tech/agent-perimeter/blob/main/datasets/static_census_2027_anonymized.json)
+- **Full anonymized report:** [`docs/state_of_external_agentic_exposure_2027.md`](https://github.com/jonadas-tech/agentic-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md)
+- **Anonymized brand dataset (`N=100`):** [`datasets/study_2027_anonymized.json`](https://github.com/jonadas-tech/agentic-perimeter/blob/main/datasets/study_2027_anonymized.json)
+- **Anonymized package static census (`N=632`):** [`datasets/static_census_2027_anonymized.json`](https://github.com/jonadas-tech/agentic-perimeter/blob/main/datasets/static_census_2027_anonymized.json)
 
 ### Key Verified Findings
 
@@ -161,8 +160,8 @@ uv run --python 3.12 pytest -v
 
 ## Responsible Disclosure & Neutrality
 
-All published study datasets strip target domain/brand identifiers and sensitive live misconfiguration URLs. Classifications describe verifiable provenance properties and never assert malicious intent by commercial aggregators or community maintainers. See [SECURITY.md](https://github.com/jonadas-tech/agent-perimeter/blob/main/SECURITY.md) for full passive-only guarantees and disclosure policy.
+All published study datasets strip target domain/brand identifiers and sensitive live misconfiguration URLs. Classifications describe verifiable provenance properties and never assert malicious intent by commercial aggregators or community maintainers. See [SECURITY.md](https://github.com/jonadas-tech/agentic-perimeter/blob/main/SECURITY.md) for full passive-only guarantees and disclosure policy.
 
 ## License
 
-Apache-2.0 — see [LICENSE](https://github.com/jonadas-tech/agent-perimeter/blob/main/LICENSE).
+Apache-2.0 — see [LICENSE](https://github.com/jonadas-tech/agentic-perimeter/blob/main/LICENSE).

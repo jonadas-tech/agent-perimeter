@@ -1,4 +1,4 @@
-"""Thread-safe, dependency-free, polite passive HTTP client for agent-perimeter."""
+"""Thread-safe, dependency-free, polite passive HTTP client for agentic-perimeter."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ import zlib
 
 from . import __version__
 
-USER_AGENT = f"agent-perimeter/{__version__} (+passive-external-audit; read-only)"
+USER_AGENT = f"agentic-perimeter/{__version__} (+passive-external-audit; read-only)"
 
 
 class _TitleExtractor(HTMLParser):

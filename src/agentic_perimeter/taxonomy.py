@@ -1,5 +1,5 @@
 """Canonical OWASP Agentic Top 10 (2026 v1.0), OWASP MCP Top 10 (2025 v0.1 Beta),
-and strictly factual, neutral finding taxonomy for agent-perimeter.
+and strictly factual, neutral finding taxonomy for agentic-perimeter.
 """
 
 from __future__ import annotations

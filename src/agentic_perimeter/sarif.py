@@ -84,7 +84,7 @@ def render_sarif(report: AuditReport | Dict[str, Any]) -> Dict[str, Any]:
                     {
                         "physicalLocation": {
                             "artifactLocation": {
-                                "uri": f"agent-perimeter/{domain}",
+                                "uri": f"agentic-perimeter/{domain}",
                             },
                             "region": {"startLine": 1},
                         },
@@ -117,9 +117,9 @@ def render_sarif(report: AuditReport | Dict[str, Any]) -> Dict[str, Any]:
             {
                 "tool": {
                     "driver": {
-                        "name": "agent-perimeter",
+                        "name": "agentic-perimeter",
                         "version": str(data.get("tool_version") or __version__),
-                        "informationUri": "https://github.com/jonadas-tech/agent-perimeter",
+                        "informationUri": "https://github.com/jonadas-tech/agentic-perimeter",
                         "rules": rules,
                     }
                 },

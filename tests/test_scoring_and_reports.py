@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import re
 
-from agent_perimeter.models import AuditReport, BrandTarget, Evidence, Finding
-from agent_perimeter.report_html import render_html_report
-from agent_perimeter.scoring import SCORING_MODEL, score_audit
-from agent_perimeter.study import anonymize_batch_results, render_study_markdown
-from agent_perimeter.taxonomy import FINDING_DEFINITIONS, OWASP_ASI, OWASP_MCP, owasp_list_for
+from agentic_perimeter.models import AuditReport, BrandTarget, Evidence, Finding
+from agentic_perimeter.report_html import render_html_report
+from agentic_perimeter.scoring import SCORING_MODEL, score_audit
+from agentic_perimeter.study import anonymize_batch_results, render_study_markdown
+from agentic_perimeter.taxonomy import FINDING_DEFINITIONS, OWASP_ASI, OWASP_MCP, owasp_list_for
 
 
 def _empty_v1() -> dict:

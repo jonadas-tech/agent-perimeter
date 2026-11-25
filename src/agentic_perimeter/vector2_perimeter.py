@@ -234,7 +234,7 @@ def probe_vector2(
             discovered_hosts.add(f"mcp.{sib}")
 
     # Wildcard DNS check on primary domain
-    wc_probe = doh_resolve(client, f"agent-perimeter-nx-9f8e7d.{primary}", ("A", "AAAA", "CNAME"), dnssec=False)
+    wc_probe = doh_resolve(client, f"agentic-perimeter-nx-9f8e7d.{primary}", ("A", "AAAA", "CNAME"), dnssec=False)
     wc_ips = set(
         wc_probe["records"].get("A", [])
         + wc_probe["records"].get("AAAA", [])

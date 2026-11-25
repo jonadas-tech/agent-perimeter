@@ -6,9 +6,9 @@ import json
 import threading
 from typing import Any, Dict
 
-from agent_perimeter.http_client import HttpResponse
-from agent_perimeter.models import BrandTarget
-import agent_perimeter.vector2_perimeter as v2mod
+from agentic_perimeter.http_client import HttpResponse
+from agentic_perimeter.models import BrandTarget
+import agentic_perimeter.vector2_perimeter as v2mod
 
 
 class FakeV2Client:
@@ -69,8 +69,8 @@ def test_v2_missing_rfc9728_broad_scopes_dns_aid_and_no_agent_card_fp(monkeypatc
             [{"id": "999", "dns_names": ["agent.example.io", "mcp.example.io", "mcp-beta.example.io"]}],
         ),
         # Wildcard check NXDOMAIN
-        "https://dns.google/resolve?name=agent-perimeter-nx-9f8e7d.example.io&type=A": _resp(
-            "https://dns.google/resolve?name=agent-perimeter-nx-9f8e7d.example.io&type=A",
+        "https://dns.google/resolve?name=agentic-perimeter-nx-9f8e7d.example.io&type=A": _resp(
+            "https://dns.google/resolve?name=agentic-perimeter-nx-9f8e7d.example.io&type=A",
             {"Status": 3, "AD": False},
         ),
         # mcp.example.io resolves and has RFC 9728 with broad scopes
@@ -126,7 +126,7 @@ def test_v2_missing_rfc9728_broad_scopes_dns_aid_and_no_agent_card_fp(monkeypatc
 
 
 def test_dns_aid_ignores_wildcard_spf_txt_and_wildcard_cname() -> None:
-    from agent_perimeter.dns_ct import probe_dns_aid
+    from agentic_perimeter.dns_ct import probe_dns_aid
 
     responses = {
         "https://dns.google/resolve?name=corp.com&type=A&do=1": _resp(

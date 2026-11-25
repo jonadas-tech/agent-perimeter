@@ -1,4 +1,4 @@
-"""Longitudinal cohort diff engine (`agent-perimeter trend`) for multi-quarter
+"""Longitudinal cohort diff engine (`agentic-perimeter trend`) for multi-quarter
 index tracking (e.g., 2026-Q4 -> 2027-Q1).
 
 Supports BOTH:
@@ -610,7 +610,7 @@ def render_trend_markdown(trend: Dict[str, Any]) -> str:
     lines: List[str] = [
         f"# External Agentic Exposure Longitudinal Trend: {lp} -> {lc}",
         "",
-        f"**Input Format:** `{trend.get('input_format')}` · **Tool:** `agent-perimeter` v{trend.get('tool_version')}  ",
+        f"**Input Format:** `{trend.get('input_format')}` · **Tool:** `agentic-perimeter` v{trend.get('tool_version')}  ",
         f"**Cohort Overlap:** `{ov.get('previous_total', 0)}` ({lp}) -> `{ov.get('current_total', 0)}` ({lc}) | "
         f"Matched: `{ov.get('matched_count', 0)}` | Added: `{ov.get('added_count', 0)}` | Removed: `{ov.get('removed_count', 0)}`  ",
         f"**Total 3rd-Party Hosted MCP Proxy Instances:** `{proxies.get('previous', 0)}` -> `{proxies.get('current', 0)}` "

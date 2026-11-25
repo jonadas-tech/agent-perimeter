@@ -6,9 +6,9 @@ import json
 import threading
 from typing import Any, Dict, Optional, Tuple
 
-from agent_perimeter.http_client import HttpResponse
-from agent_perimeter.models import BrandTarget
-from agent_perimeter.vector1_supply_chain import probe_vector1
+from agentic_perimeter.http_client import HttpResponse
+from agentic_perimeter.models import BrandTarget
+from agentic_perimeter.vector1_supply_chain import probe_vector1
 
 
 class FakeHttpClient:
@@ -283,7 +283,7 @@ def test_url_path_token_exposure_and_ai_sdk_noise_filter() -> None:
 
 
 def test_f1_to_f10_platform_prefix_spoof_tombstones_security_holding_and_homonyms() -> None:
-    from agent_perimeter.vector1_supply_chain import (
+    from agentic_perimeter.vector1_supply_chain import (
         _email_matches_domains,
         _is_homonym_noise,
         _is_security_holding_pkg,

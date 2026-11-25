@@ -1,4 +1,4 @@
-"""Command-line interface for agent-perimeter (uvx-ready)."""
+"""Command-line interface for agentic-perimeter (uvx-ready)."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def _print_console_summary(report_dict: dict) -> None:
     action_str = sc.get("action_posture", "Baseline — Monitor")
 
     print(
-        f"\nagent-perimeter v{__version__} | {tgt['domain']} (brand: {tgt['brand']}) | {report_dict['duration_seconds']}s"
+        f"\nagentic-perimeter v{__version__} | {tgt['domain']} (brand: {tgt['brand']}) | {report_dict['duration_seconds']}s"
     )
     print(
         f"Control Posture: {posture_str} | Threat Pressure: {threat_str} | Action: {action_str}"
@@ -242,13 +242,13 @@ def _cmd_trend(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="agent-perimeter",
+        prog="agentic-perimeter",
         description=(
             "100% passive external attack surface scanner for agentic brand impersonation, "
             "MCP supply-chain exposure, and DNS-AID/OAuth perimeter hygiene."
         ),
     )
-    parser.add_argument("--version", action="version", version=f"agent-perimeter {__version__}")
+    parser.add_argument("--version", action="version", version=f"agentic-perimeter {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     # audit

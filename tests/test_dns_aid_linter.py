@@ -11,7 +11,7 @@ import socket
 import threading
 from typing import Any, Dict
 
-from agent_perimeter.dns_aid_linter import (
+from agentic_perimeter.dns_aid_linter import (
     check_ans_badge,
     host_from_ans_name,
     lint_dns_aid,
@@ -20,12 +20,12 @@ from agent_perimeter.dns_aid_linter import (
     parse_tlsa_rdata,
     verify_card_digest,
 )
-from agent_perimeter.http_client import HttpResponse
-from agent_perimeter.models import BrandTarget
-from agent_perimeter.scoring import rescore_report_dict, score_audit
-from agent_perimeter.taxonomy import ALL_FINDING_DEFINITIONS, PROTOCOL_FINDING_DEFINITIONS
-import agent_perimeter.vector2_perimeter as v2mod
-import agent_perimeter.vector3_lookalike as v3mod
+from agentic_perimeter.http_client import HttpResponse
+from agentic_perimeter.models import BrandTarget
+from agentic_perimeter.scoring import rescore_report_dict, score_audit
+from agentic_perimeter.taxonomy import ALL_FINDING_DEFINITIONS, PROTOCOL_FINDING_DEFINITIONS
+import agentic_perimeter.vector2_perimeter as v2mod
+import agentic_perimeter.vector3_lookalike as v3mod
 
 
 class FakeWireClient:

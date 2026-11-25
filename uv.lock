@@ -3,7 +3,7 @@ revision = 5
 requires-python = ">=3.11"
 
 [[package]]
-name = "agent-perimeter"
+name = "agentic-perimeter"
 version = "0.3.0"
 source = { editable = "." }
 

@@ -5,12 +5,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agent_perimeter import cli
-from agent_perimeter.diff import compare_reports, format_diff_summary
-from agent_perimeter.models import AuditReport, BrandTarget, Evidence, Finding, ScoreSummary
-from agent_perimeter.sarif import render_sarif
-from agent_perimeter.static_audit import _inspect_text_files
-from agent_perimeter.taxonomy import owasp_list_for
+from agentic_perimeter import cli
+from agentic_perimeter.diff import compare_reports, format_diff_summary
+from agentic_perimeter.models import AuditReport, BrandTarget, Evidence, Finding, ScoreSummary
+from agentic_perimeter.sarif import render_sarif
+from agentic_perimeter.static_audit import _inspect_text_files
+from agentic_perimeter.taxonomy import owasp_list_for
 
 
 def _make_sample_report(domain: str = "acme.example", include_proxy: bool = True) -> dict:
@@ -86,7 +86,7 @@ def test_sarif_export_structure_and_owasp_tags() -> None:
     sarif = render_sarif(report)
     assert sarif["version"] == "2.1.0"
     run = sarif["runs"][0]
-    assert run["tool"]["driver"]["name"] == "agent-perimeter"
+    assert run["tool"]["driver"]["name"] == "agentic-perimeter"
     assert len(run["tool"]["driver"]["rules"]) >= 12
     assert len(run["results"]) == 1
     res = run["results"][0]

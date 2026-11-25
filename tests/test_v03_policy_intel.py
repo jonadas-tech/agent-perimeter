@@ -15,23 +15,23 @@ from pathlib import Path
 import re
 from typing import Any, Dict, List
 
-import agent_perimeter
-from agent_perimeter import cli
-from agent_perimeter.dns_policy import (
+import agentic_perimeter
+from agentic_perimeter import cli
+from agentic_perimeter.dns_policy import (
     is_shared_multitenant_platform,
     render_domain_feed,
     render_rpz,
 )
-from agent_perimeter.http_client import HttpResponse
-from agent_perimeter.models import AuditReport, BrandTarget, ScoreSummary
-from agent_perimeter.rdap import (
+from agentic_perimeter.http_client import HttpResponse
+from agentic_perimeter.models import AuditReport, BrandTarget, ScoreSummary
+from agentic_perimeter.rdap import (
     clear_rdap_caches,
     enrich_report_rdap,
     lookup_rdap,
     parse_rdap_response,
 )
-from agent_perimeter.report_html import render_html_report
-from agent_perimeter.trend import compute_trend, render_trend_markdown
+from agentic_perimeter.report_html import render_html_report
+from agentic_perimeter.trend import compute_trend, render_trend_markdown
 
 
 class _MockHttpClient:
@@ -156,7 +156,7 @@ def _make_rich_v03_report(domain: str = "agenthaven.dev", include_spoof: bool = 
     )
     rep = AuditReport(
         schema_version="2.0",
-        tool_version=agent_perimeter.__version__,
+        tool_version=agentic_perimeter.__version__,
         scanned_at="2026-11-24T12:00:00Z",
         duration_seconds=1.5,
         target=BrandTarget(domain=domain, brand=domain.split(".")[0], sector="AI & Data", cohort="saas_ai_fintech"),
@@ -545,9 +545,9 @@ def test_rpz_and_domain_feed_self_dos_protection_and_spoofed_badge_blocking() ->
     assert by_fqdn["brand-community.vercel.app"]["action"] == "audit"
 
     # RPZ syntax checks (block mode)
-    rpz_block = render_rpz(rep, zone_name="rpz.agent-perimeter.local", policy_mode="block")
+    rpz_block = render_rpz(rep, zone_name="rpz.agentic-perimeter.local", policy_mode="block")
     assert "$TTL 300" in rpz_block
-    assert "@   IN  SOA localhost. hostmaster.rpz.agent-perimeter.local." in rpz_block
+    assert "@   IN  SOA localhost. hostmaster.rpz.agentic-perimeter.local." in rpz_block
     assert "IN  NS  localhost." in rpz_block
     assert "mcp.agenthaven.dev  IN  CNAME  rpz-passthru." in rpz_block
     assert "travel.agenthaven.dev  IN  CNAME  rpz-passthru." in rpz_block
@@ -670,7 +670,7 @@ def test_trend_engine_raw_batch_and_anonymized_study() -> None:
 
 
 def test_cli_v03_flags_rpz_feed_trend_and_html_wire_rendering(monkeypatch, tmp_path: Path) -> None:
-    assert agent_perimeter.__version__ == "0.3.0"
+    assert agentic_perimeter.__version__ == "0.3.0"
     rep_dict = _make_rich_v03_report(domain="agenthaven.dev", include_spoof=False)
     captured_kwargs: Dict[str, Any] = {}
 

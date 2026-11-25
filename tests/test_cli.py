@@ -1,12 +1,12 @@
-"""CLI smoke tests for agent-perimeter."""
+"""CLI smoke tests for agentic-perimeter."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-from agent_perimeter import cli
-from agent_perimeter.models import AuditReport, BrandTarget, ScoreSummary
+from agentic_perimeter import cli
+from agentic_perimeter.models import AuditReport, BrandTarget, ScoreSummary
 
 
 def test_cli_audit_exports_json_and_html(monkeypatch, tmp_path: Path) -> None:
@@ -62,7 +62,7 @@ def test_cli_audit_exports_json_and_html(monkeypatch, tmp_path: Path) -> None:
 
 
 def test_normalize_target_preserves_leading_w() -> None:
-    from agent_perimeter.scanner import normalize_target
+    from agentic_perimeter.scanner import normalize_target
 
     assert normalize_target("walmart.com").domain == "walmart.com"
     assert normalize_target("wellsfargo.com").domain == "wellsfargo.com"

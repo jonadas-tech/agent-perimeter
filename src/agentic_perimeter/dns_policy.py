@@ -1,5 +1,5 @@
 """Open-standard Protective DNS Response Policy Zone (RPZ) and structured JSON
-domain feed exporter for agent-perimeter.
+domain feed exporter for agentic-perimeter.
 
 Generates vendor-neutral ISC BIND RPZ syntax (compatible with standard DNS
 resolvers supporting RPZ) and a machine-readable JSON domain feed from a single
@@ -670,7 +670,7 @@ def render_domain_feed(
 
     return {
         "schema_version": "1.0",
-        "feed_type": "agent_perimeter_protective_dns_feed",
+        "feed_type": "agentic_perimeter_protective_dns_feed",
         "tool_version": __version__,
         "generated_at": ts,
         "policy_mode": (policy_mode or "block").strip().lower(),
@@ -688,7 +688,7 @@ def render_domain_feed(
 
 def render_rpz(
     report_or_batch: AuditReport | Dict[str, Any] | List[Any],
-    zone_name: str = "rpz.agent-perimeter.local",
+    zone_name: str = "rpz.agentic-perimeter.local",
     policy_mode: str = "block",
     generated_at: Optional[str] = None,
 ) -> str:
@@ -702,7 +702,7 @@ def render_rpz(
     ts = generated_at or now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     serial = now_dt.strftime("%Y%m%d01")
 
-    clean_zone = _clean_fqdn(zone_name) or "rpz.agent-perimeter.local"
+    clean_zone = _clean_fqdn(zone_name) or "rpz.agentic-perimeter.local"
     scope_desc = ", ".join(targets[:5]) + (f" (+{len(targets) - 5} more)" if len(targets) > 5 else "")
     scope_desc = _sanitize_comment(scope_desc or "unspecified")
 
@@ -711,7 +711,7 @@ def render_rpz(
 
     lines: List[str] = [
         "; =============================================================================",
-        "; agent-perimeter Protective DNS Response Policy Zone (RPZ)",
+        "; agentic-perimeter Protective DNS Response Policy Zone (RPZ)",
         f"; Tool Version : {__version__}",
         f"; Zone Name    : {clean_zone}",
         f"; Generated    : {_sanitize_comment(ts)}",

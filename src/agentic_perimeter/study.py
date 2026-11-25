@@ -356,7 +356,7 @@ def render_study_markdown(study: Dict[str, Any]) -> str:
             "",
             f"**Dataset Size:** {n} public brands ({ent.get('count', 0)} Traditional Fortune/S&P 500 + {tech.get('count', 0)} SaaS/Fintech/Cloud/AI)  ",
             f"**Scan Window:** `{win.get('started_at')}` to `{win.get('finished_at')}` (`{win.get('duration_seconds')}s`)  ",
-            f"**Tool & Scoring Model:** `agent-perimeter` v{study.get('tool_version')} · `{study.get('scoring_model', '2-axis-v1')}` (100% passive, read-only public APIs, DoH, CT/TLS SAN)  ",
+            f"**Tool & Scoring Model:** `agentic-perimeter` v{study.get('tool_version')} · `{study.get('scoring_model', '2-axis-v1')}` (100% passive, read-only public APIs, DoH, CT/TLS SAN)  ",
             f"**Axis 1 — First-Party Control Posture (Graded N={overall.get('graded_posture_count', 0)}; Baseline N/A={overall.get('baseline_na_count', 0)}):** Mean `{fmt_opt(overall.get('mean_control_posture'))}` / Median `{fmt_opt(overall.get('median_control_posture'))}` (Grades: A={grades.get('A', 0)}, B={grades.get('B', 0)}, C={grades.get('C', 0)}, D={grades.get('D', 0)}, F={grades.get('F', 0)}, N/A={grades.get('N/A', 0)})  ",
             f"**Axis 2 — External Ecosystem Threat Pressure (All N={n}):** Mean `{overall.get('mean_threat_pressure', 0.0)}` / Median `{overall.get('median_threat_pressure', 0.0)}` (Levels: Critical={threats.get('Critical', 0)}, High={threats.get('High', 0)}, Moderate={threats.get('Moderate', 0)}, Low={threats.get('Low', 0)}, None={threats.get('None', 0)})",
             "",

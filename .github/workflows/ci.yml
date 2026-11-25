@@ -21,4 +21,4 @@ jobs:
       - name: Run pytest
         run: uv run --python ${{ matrix.python-version }} pytest -v
       - name: Verify CLI package build
-        run: uvx --python ${{ matrix.python-version }} --from . agent-perimeter --version
+        run: uvx --python ${{ matrix.python-version }} --from . agentic-perimeter --version

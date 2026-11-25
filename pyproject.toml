@@ -3,7 +3,7 @@ requires = ["hatchling>=1.25.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agent-perimeter"
+name = "agentic-perimeter"
 version = "0.3.0"
 description = "Passive external attack surface scanner for MCP supply-chain provenance, agent discovery, and DNS-AID/OAuth perimeter hygiene."
 readme = "README.md"
@@ -37,13 +37,13 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/jonadas-tech/agent-perimeter"
-Repository = "https://github.com/jonadas-tech/agent-perimeter"
-Documentation = "https://github.com/jonadas-tech/agent-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md"
-Issues = "https://github.com/jonadas-tech/agent-perimeter/issues"
+Homepage = "https://github.com/jonadas-tech/agentic-perimeter"
+Repository = "https://github.com/jonadas-tech/agentic-perimeter"
+Documentation = "https://github.com/jonadas-tech/agentic-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md"
+Issues = "https://github.com/jonadas-tech/agentic-perimeter/issues"
 
 [project.scripts]
-agent-perimeter = "agent_perimeter.cli:main"
+agentic-perimeter = "agentic_perimeter.cli:main"
 
 [dependency-groups]
 dev = [
@@ -51,7 +51,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agent_perimeter"]
+packages = ["src/agentic_perimeter"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

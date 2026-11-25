@@ -1,4 +1,4 @@
-"""Core data models for agent-perimeter audits and empirical studies."""
+"""Core data models for agentic-perimeter audits and empirical studies."""
 
 from __future__ import annotations
 

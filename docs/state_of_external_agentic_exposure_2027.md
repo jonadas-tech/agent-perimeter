@@ -2,7 +2,7 @@
 
 **Dataset Size:** 100 public brands (50 Traditional Fortune/S&P 500 + 50 SaaS/Fintech/Cloud/AI)  
 **Scan Window:** `2026-11-21T12:02:08Z` to `2026-11-21T12:13:13Z` (`665.25s`)  
-**Tool & Scoring Model:** `agent-perimeter` v0.1.0 · `2-axis-v1` (100% passive, read-only public APIs, DoH, CT/TLS SAN)  
+**Tool & Scoring Model:** `agentic-perimeter` v0.1.0 · `2-axis-v1` (100% passive, read-only public APIs, DoH, CT/TLS SAN)  
 **Axis 1 — First-Party Control Posture (Graded N=58; Baseline N/A=42):** Mean `48.8` / Median `51.5` (Grades: A=4, B=13, C=9, D=11, F=21, N/A=42)  
 **Axis 2 — External Ecosystem Threat Pressure (All N=100):** Mean `24.7` / Median `26.0` (Levels: Critical=1, High=20, Moderate=31, Low=4, None=44)
 
