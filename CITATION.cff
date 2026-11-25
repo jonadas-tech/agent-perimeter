@@ -7,6 +7,7 @@ authors:
     given-names: "Jônadas"
 repository-code: "https://github.com/jonadas-tech/agentic-perimeter"
 url: "https://pypi.org/project/agentic-perimeter/"
+doi: "10.5281/zenodo.24545374"
 abstract: >-
   Open-source, 100% passive External Attack Surface Management (EASM) CLI and
   MCP server auditing cross-registry MCP supply-chain provenance (Official MCP
