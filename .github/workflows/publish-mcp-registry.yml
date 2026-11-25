@@ -24,9 +24,15 @@ jobs:
           curl -fsSLO https://github.com/modelcontextprotocol/registry/releases/download/v1.8.16/registry_1.8.16_checksums.txt
           grep "mcp-publisher_linux_amd64.tar.gz$" registry_1.8.16_checksums.txt | sha256sum -c -
           tar -xzf mcp-publisher_linux_amd64.tar.gz
-      - name: Validate & publish to Official MCP Registry
+      - name: Validate & publish to Official MCP Registry (idempotent)
         run: |
           set -euo pipefail
           ./mcp-publisher validate server.json
+          VER=$(python3 -c 'import json; print(json.load(open("server.json"))["version"])')
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "https://registry.modelcontextprotocol.io/v0.1/servers/io.github.jonadas-tech%2Fagentic-perimeter/versions/${VER}")
+          if [[ "$HTTP_CODE" == "200" ]]; then
+            echo "io.github.jonadas-tech/agentic-perimeter@${VER} is already published on Official MCP Registry; skipping."
+            exit 0
+          fi
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish server.json
