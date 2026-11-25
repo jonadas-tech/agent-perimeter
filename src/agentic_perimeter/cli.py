@@ -240,6 +240,12 @@ def _cmd_trend(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_mcp(_args: argparse.Namespace) -> int:
+    from .mcp_server import serve_stdio
+
+    return serve_stdio()
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="agentic-perimeter",
@@ -310,6 +316,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_trend.add_argument("--label-curr", help="Optional period label for current dataset (e.g. 2027-Q1)")
     p_trend.add_argument("--quiet", "-q", action="store_true", help="Suppress console summary output")
     p_trend.set_defaults(func=_cmd_trend)
+
+    # mcp
+    p_mcp = sub.add_parser(
+        "mcp",
+        help="Start the zero-dependency, read-only MCP stdio server for AI coding agents.",
+    )
+    p_mcp.set_defaults(func=_cmd_mcp)
 
     return parser
 

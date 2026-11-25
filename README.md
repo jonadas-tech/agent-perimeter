@@ -1,8 +1,11 @@
 # `agentic-perimeter`
 
-**Passive External Attack Surface Management (EASM) CLI for MCP supply-chain provenance, external agent discovery, and OAuth/DNS hygiene.**
+<!-- mcp-name: io.github.jonadas-tech/agentic-perimeter -->
+
+**Passive External Attack Surface Management (EASM) CLI & MCP Server for MCP supply-chain provenance, external agent discovery, and OAuth/DNS hygiene.**
 
 [![CI](https://github.com/jonadas-tech/agentic-perimeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jonadas-tech/agentic-perimeter/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/agentic-perimeter.svg)](https://pypi.org/project/agentic-perimeter/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/jonadas-tech/agentic-perimeter/blob/main/LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](https://github.com/jonadas-tech/agentic-perimeter/blob/main/pyproject.toml)
 
@@ -59,6 +62,23 @@ uvx agentic-perimeter batch datasets/top100_brands.json \
 Optional environment variables:
 - `GITHUB_TOKEN` (or authenticated `gh` CLI) for GitHub org domain anchoring (`blog`/`email`) and higher rate limits.
 - `CERTSPOTTER_API_KEY` for higher CertSpotter Certificate Transparency throughput (falls back automatically to bounded `crt.sh` + live TLS SAN extraction).
+
+---
+
+## Run as an MCP Server (Claude Code, Cursor, VS Code, Windsurf)
+
+`agentic-perimeter` includes a built-in, zero-dependency, strictly read-only MCP `stdio` server (`readOnlyHint: true`, `destructiveHint: false`) exposing `audit_domain` and `lint_dns_aid`:
+
+```json
+{
+  "mcpServers": {
+    "agentic-perimeter": {
+      "command": "uvx",
+      "args": ["agentic-perimeter", "mcp"]
+    }
+  }
+}
+```
 
 ---
 

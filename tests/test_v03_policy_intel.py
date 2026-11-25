@@ -670,7 +670,7 @@ def test_trend_engine_raw_batch_and_anonymized_study() -> None:
 
 
 def test_cli_v03_flags_rpz_feed_trend_and_html_wire_rendering(monkeypatch, tmp_path: Path) -> None:
-    assert agentic_perimeter.__version__ == "0.3.0"
+    assert agentic_perimeter.__version__ == "0.3.1"
     rep_dict = _make_rich_v03_report(domain="agenthaven.dev", include_spoof=False)
     captured_kwargs: Dict[str, Any] = {}
 

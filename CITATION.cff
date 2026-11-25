@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "agentic-perimeter: Passive External Agentic Exposure & Brand Provenance Scanner"
+message: "If you use this software or the anonymized State of External Agentic Exposure 2027 datasets in your research, please cite it using the metadata below."
+type: software
+authors:
+  - family-names: Techio
+    given-names: "Jônadas"
+repository-code: "https://github.com/jonadas-tech/agentic-perimeter"
+url: "https://pypi.org/project/agentic-perimeter/"
+abstract: >-
+  Open-source, 100% passive External Attack Surface Management (EASM) CLI and
+  MCP server auditing cross-registry MCP supply-chain provenance (Official MCP
+  Registry, npm, PyPI, GitHub), unverified third-party hosted proxies, wire-level
+  IETF DNS-AID (draft-02), DNSSEC, DANE TLSA, OWASP ANS v2 host binding, and
+  RFC 9728 OAuth Protected Resource metadata, accompanied by an anonymized
+  empirical study across 100 public brands and 632 unverified npm/PyPI MCP packages.
+keywords:
+  - mcp
+  - model-context-protocol
+  - agentic-ai
+  - cybersecurity
+  - owasp
+  - dns-aid
+  - dnssec
+  - supply-chain-security
+  - oauth
+license: Apache-2.0
+version: "0.3.1"
+date-released: "2026-11-25"
