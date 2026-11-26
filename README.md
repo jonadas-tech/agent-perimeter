@@ -146,8 +146,9 @@ Every audit reports two independent operational dimensions mapped to an **Action
 
 ![State of External Agentic Exposure 2027 — Top 100 Brands Overview](https://raw.githubusercontent.com/jonadas-tech/agentic-perimeter/main/docs/assets/top100_exposure_chart.svg)
 
-We ran a 100% passive baseline across **100 major public brands** (`50` Traditional Fortune/S&P 500 enterprises + `50` SaaS, Fintech, Cloud, Cybersecurity, and AI brands), followed by a read-only in-memory static census of **632 of 642 unique unverified brand-named npm/PyPI MCP packages** discovered in the cohort:
+I ran a 100% passive baseline across **100 major public brands** (`50` traditional Fortune Global 500 / S&P 500 enterprises + `50` SaaS, Fintech, Cloud, Cybersecurity, and AI brands; curated sample, [list](https://github.com/jonadas-tech/agentic-perimeter/blob/main/datasets/top100_brands.json)), followed by a read-only in-memory static census of **632 of 642 unique unverified brand-named npm/PyPI MCP packages** discovered in the cohort:
 
+- **Narrative study (canonical):** [The MCP Servers You Didn't Ship](https://www.jonadas.com/writing/research/state-of-external-agentic-exposure-2027), with method and limits
 - **Full anonymized report:** [`docs/state_of_external_agentic_exposure_2027.md`](https://github.com/jonadas-tech/agentic-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md)
 - **Anonymized brand dataset (`N=100`):** [`datasets/study_2027_anonymized.json`](https://github.com/jonadas-tech/agentic-perimeter/blob/main/datasets/study_2027_anonymized.json)
 - **Anonymized package static census (`N=632`):** [`datasets/static_census_2027_anonymized.json`](https://github.com/jonadas-tech/agentic-perimeter/blob/main/datasets/static_census_2027_anonymized.json)
@@ -166,7 +167,7 @@ We ran a 100% passive baseline across **100 major public brands** (`50` Traditio
 | Apex DNSSEC validated (`AD=true`) / IETF DNS-AID | **18.0% / 0.0%** | 12.0% / 0.0% | 24.0% / 0.0% |
 
 **Highlights from the 632-Package In-Memory Static Census (`98.4%` of all `642` unverified packages):**
-- **`0.0%` (`0/632`)** contained hidden prompt-injection or Unicode Tag payloads: real-world external MCP supply-chain exposure today is driven by classical provenance and governance failures, not covert tool-description injection.
+- **`0.0%` (`0/632`)** contained hidden prompt-injection or Unicode Tag payloads. This is a signature check on package files, so it cannot see novel phrasings or tool descriptions served at runtime; within what is statically inspectable, the measurable exposure is classical provenance and governance failure.
 - **`23.7%` (`150/632`)** ship **no source repository URL** in package metadata.
 - **`29` individual maintainer accounts** each publish unverified MCP packages targeting **3 to 23 distinct Top-100 brands** (top two accounts control `24` packages across `23` brands and `18` packages across `18` brands), alongside a **`22`-package dormant `coming-soon` placeholder cluster** (`3.5%`) spanning `13` Top-100 brands and **`5` prior npm Security `0.0.1-security` holding packages** (`10.0%` of the Tech/SaaS cohort).
 - **`18.5%` (`117/632`)** declare lifecycle hooks (`3` `postinstall` remote binary downloaders, `1` without SHA-256 verification), **`17.2%` (`109/632`)** invoke shell/subprocess execution, **`4.1%` (`26/632`)** reference local AI agent config files (`.cursor/mcp.json`, `claude_desktop_config.json`, `.codex/config.toml`), and **`1.7%` (`11/632`)** register unrelated CLI `bin` commands.
