@@ -29,5 +29,4 @@ If a result is wrong for something you own or maintain, please [report a false p
 
 - **The brand list is public** (`datasets/top100_brands.json`), so anonymity protects who authored a per-brand verdict, not whether someone can re-run the scan.
 - **Record IDs are assigned in random order** and sectors with fewer than 5 brands are merged (`study.MIN_CELL_SIZE`). Sector means of the control-posture score are suppressed when fewer than 5 brands in that sector are graded.
-- **Earlier dataset versions are re-identifiable.** Before 2026-11-25, `study_2027_anonymized.json` assigned IDs in the same order as the public brand list (ENT-001 was the first listed enterprise, and so on). Those versions remain in git history and in the Zenodo v0.3.1 archive.
 - **Homogeneous cells still leak.** When every member of a sector shares a value (for example, a sector where no brand has an official registry entry), the published rate reveals that value for each member. Sector tables should be read as aggregates and not repeated as statements about named companies.

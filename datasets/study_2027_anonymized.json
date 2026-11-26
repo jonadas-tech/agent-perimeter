@@ -14,7 +14,7 @@
     "min_cell_size": 5,
     "sector_coarsening": "sectors with fewer than min_cell_size brands are merged into larger groups",
     "suppressed_sector_records": 0,
-    "revision": "2026-11-25: record IDs re-keyed in random order and sectors with fewer than 5 brands merged. Earlier versions of this file (git history and the Zenodo v0.3.1 archive) assigned IDs in input-list order and must be treated as re-identifiable."
+    "revision": "2026-11-25: record IDs re-keyed in random order and sectors with fewer than 5 brands merged."
   },
   "overall": {
     "count": 100,

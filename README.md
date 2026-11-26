@@ -233,7 +233,7 @@ The recorder only targets neutral sources (this tool's own PyPI and registry ent
 
 ## Responsible Disclosure & Neutrality
 
-All published study datasets strip target domain/brand identifiers and sensitive live misconfiguration URLs, assign record IDs in random order, and merge sectors with fewer than 5 brands. Versions of `study_2027_anonymized.json` before 2026-11-25 (in git history and the Zenodo v0.3.1 archive) assigned IDs in input-list order and can be re-identified against the public brand list; see [docs/LIMITATIONS.md](docs/LIMITATIONS.md). Classifications describe verifiable provenance properties and never assert malicious intent by commercial aggregators or community maintainers. See [SECURITY.md](https://github.com/jonadas-tech/agentic-perimeter/blob/main/SECURITY.md) for full passive-only guarantees and disclosure policy.
+All published study datasets strip target domain/brand identifiers and sensitive live misconfiguration URLs, assign record IDs in random order, and merge sectors with fewer than 5 brands; see [docs/LIMITATIONS.md](docs/LIMITATIONS.md). Classifications describe verifiable provenance properties and never assert malicious intent by commercial aggregators or community maintainers. See [SECURITY.md](https://github.com/jonadas-tech/agentic-perimeter/blob/main/SECURITY.md) for full passive-only guarantees and disclosure policy.
 
 ## License
 
