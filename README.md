@@ -7,6 +7,7 @@
 [![CI](https://github.com/jonadas-tech/agentic-perimeter/actions/workflows/ci.yml/badge.svg)](https://github.com/jonadas-tech/agentic-perimeter/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/agentic-perimeter.svg)](https://pypi.org/project/agentic-perimeter/)
 [![DOI](https://zenodo.org/badge/1466570059.svg)](https://doi.org/10.5281/zenodo.24545374)
+[![Glama MCP Server](https://glama.ai/mcp/servers/jonadas-tech/agentic-perimeter/badges/score.svg)](https://glama.ai/mcp/servers/jonadas-tech/agentic-perimeter)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://github.com/jonadas-tech/agentic-perimeter/blob/main/LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB.svg)](https://github.com/jonadas-tech/agentic-perimeter/blob/main/pyproject.toml)
 
