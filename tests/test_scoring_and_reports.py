@@ -88,50 +88,50 @@ def test_two_axis_scoring_archetypes_and_context_aware_recommendations() -> None
     assert s_zero.threat_pressure_level == "None"
     assert s_zero.action_posture == "Baseline — Monitor"
 
-    # 2. CapitalOne-style: zero MCP footprint + V3 phishing-warning lookalike -> N/A + Moderate -> Brand Protection Alert
-    t_cap = BrandTarget(domain="capdemo.com", brand="capdemo", cohort="fortune_traditional")
-    s_cap = score_audit(t_cap, [], _empty_v1(), _empty_v2(), _empty_v3(phish_hit=True))
-    assert s_cap.control_posture_applicable is False
-    assert s_cap.control_posture_grade == "N/A"
-    assert s_cap.threat_pressure_score == 25
-    assert s_cap.threat_pressure_level == "Moderate"
-    assert s_cap.action_posture == "Brand Protection Alert"
+    # 2. Zero MCP footprint + V3 phishing-warning lookalike -> N/A + Moderate -> Brand Protection Alert
+    t_lookalike = BrandTarget(domain="lookalikedemo.com", brand="lookalikedemo", cohort="fortune_traditional")
+    s_lookalike = score_audit(t_lookalike, [], _empty_v1(), _empty_v2(), _empty_v3(phish_hit=True))
+    assert s_lookalike.control_posture_applicable is False
+    assert s_lookalike.control_posture_grade == "N/A"
+    assert s_lookalike.threat_pressure_score == 25
+    assert s_lookalike.threat_pressure_level == "Moderate"
+    assert s_lookalike.action_posture == "Brand Protection Alert"
 
-    # 3. WellsFargo-style: live MCP without RFC 9728, 0 official registry, 0 external pressure -> 0 (F) + None (0) -> Proactive Hardening
-    t_wf = BrandTarget(domain="bankmcp.com", brand="bankmcp", cohort="fortune_traditional")
-    v2_wf = _empty_v2(dnssec=False)
-    v2_wf["flags"]["live_mcp_endpoint_count"] = 1
-    v2_wf["flags"]["missing_rfc9728_count"] = 1
-    s_wf = score_audit(t_wf, [], _empty_v1(), v2_wf, _empty_v3())
-    assert s_wf.control_posture_applicable is True
-    assert s_wf.control_posture_score == 0
-    assert s_wf.control_posture_grade == "F"
-    assert s_wf.threat_pressure_score == 0
-    assert s_wf.action_posture == "Proactive Hardening"
+    # 3. Live MCP without RFC 9728, 0 official registry, 0 external pressure -> 0 (F) + None (0) -> Proactive Hardening
+    t_live = BrandTarget(domain="livedemo.com", brand="livedemo", cohort="fortune_traditional")
+    v2_live = _empty_v2(dnssec=False)
+    v2_live["flags"]["live_mcp_endpoint_count"] = 1
+    v2_live["flags"]["missing_rfc9728_count"] = 1
+    s_live = score_audit(t_live, [], _empty_v1(), v2_live, _empty_v3())
+    assert s_live.control_posture_applicable is True
+    assert s_live.control_posture_score == 0
+    assert s_live.control_posture_grade == "F"
+    assert s_live.threat_pressure_score == 0
+    assert s_live.action_posture == "Proactive Hardening"
 
-    # 4. Stripe-style: strong controls (no DNSSEC -> 88 B) + critical external pressure (95 Critical) -> Active Defense
-    #    AND context-aware recommendations NEVER tell Stripe to claim registry or publish packages it already owns!
-    t_str = BrandTarget(domain="paydemo.com", brand="paydemo", cohort="saas_ai_fintech")
-    v1_str = {
+    # 4. Strong controls (no DNSSEC -> 88 B) + critical external pressure (95 Critical) -> Active Defense
+    #    AND context-aware recommendations NEVER tell a brand to claim registry or publish packages it already owns!
+    t_strong = BrandTarget(domain="strongdemo.com", brand="strongdemo", cohort="saas_ai_fintech")
+    v1_strong = {
         "mcp_registry": {
             "official_count": 1,
             "unverified_3p_hosted_proxy_count": 5,
             "url_path_token_exposed_count": 1,
             "unverified_3p_package_entry_count": 0,
-            "entries": [{"name": "com.paydemo/mcp", "classification": "official_domain_anchored"}],
+            "entries": [{"name": "com.strongdemo/mcp", "classification": "official_domain_anchored"}],
         },
         "npm": {
             "official_count": 1,
             "unverified_count": 15,
             "free_email_unverified_count": 10,
-            "packages": [{"name": "@paydemo/mcp", "official_anchored": True, "is_scoped": True}],
+            "packages": [{"name": "@strongdemo/mcp", "official_anchored": True, "is_scoped": True}],
         },
         "pypi": {"official_count": 1, "unverified_count": 0, "free_email_unverified_count": 0, "packages": []},
         "flags": {"official_registry_vacuum": False, "has_any_mcp_footprint": True},
     }
-    v2_str = _empty_v2(dnssec=False, dns_aid=False)
-    v2_str["flags"]["live_mcp_endpoint_count"] = 1
-    v2_str["flags"]["rfc9728_present_count"] = 1
+    v2_strong = _empty_v2(dnssec=False, dns_aid=False)
+    v2_strong["flags"]["live_mcp_endpoint_count"] = 1
+    v2_strong["flags"]["rfc9728_present_count"] = 1
     f_tok = Finding(
         rule_id="v1_url_path_token_exposure",
         vector="V1",
@@ -165,44 +165,44 @@ def test_two_axis_scoring_archetypes_and_context_aware_recommendations() -> None
         evidence=[],
         recommendation="Publish official scoped MCP packages",
     )
-    s_str = score_audit(t_str, [f_tok, f_proxy, f_free], v1_str, v2_str, _empty_v3())
-    assert s_str.control_posture_score == 88
-    assert s_str.control_posture_grade == "B"
-    assert s_str.threat_pressure_score == 95
-    assert s_str.threat_pressure_level == "Critical"
-    assert s_str.action_posture == "Active Defense"
-    # Verify context-aware recommendations never tell paydemo to claim a registry or publish packages it already owns
-    for rec in [f_tok.recommendation, f_proxy.recommendation, *s_str.external_defense_priorities]:
+    s_strong = score_audit(t_strong, [f_tok, f_proxy, f_free], v1_strong, v2_strong, _empty_v3())
+    assert s_strong.control_posture_score == 88
+    assert s_strong.control_posture_grade == "B"
+    assert s_strong.threat_pressure_score == 95
+    assert s_strong.threat_pressure_level == "Critical"
+    assert s_strong.action_posture == "Active Defense"
+    # Verify context-aware recommendations never tell strongdemo to claim a registry or publish packages it already owns
+    for rec in [f_tok.recommendation, f_proxy.recommendation, *s_strong.external_defense_priorities]:
         assert "claim your official reverse-dns" not in rec.lower()
         assert "publish official scoped mcp packages" not in rec.lower()
     assert "trusted publishers" in f_free.recommendation.lower()
 
-    # 5. Cloudflare-style: all production controls + apex DNSSEC (AD=true) -> 96 (Grade A)
-    v2_cf = _empty_v2(dnssec=True, dns_aid=False)
-    v2_cf["flags"]["live_mcp_endpoint_count"] = 7
-    v2_cf["flags"]["rfc9728_present_count"] = 7
-    s_cf = score_audit(t_str, [], v1_str, v2_cf, _empty_v3())
-    assert s_cf.control_posture_score == 96
-    assert s_cf.control_posture_grade == "A"
-    assert s_cf.control_posture_label == "Exemplary"
+    # 5. All production controls + apex DNSSEC (AD=true) -> 96 (Grade A)
+    v2_full = _empty_v2(dnssec=True, dns_aid=False)
+    v2_full["flags"]["live_mcp_endpoint_count"] = 7
+    v2_full["flags"]["rfc9728_present_count"] = 7
+    s_full = score_audit(t_strong, [], v1_strong, v2_full, _empty_v3())
+    assert s_full.control_posture_score == 96
+    assert s_full.control_posture_grade == "A"
+    assert s_full.control_posture_label == "Exemplary"
 
-    # 6. Slack-style: weak controls (F) + High external pressure -> Urgent Remediation
-    v1_sl = {
+    # 6. Weak controls (F) + High external pressure -> Urgent Remediation
+    v1_weak = {
         "mcp_registry": {"official_count": 0, "unverified_3p_hosted_proxy_count": 6, "url_path_token_exposed_count": 0, "entries": []},
         "npm": {"official_count": 0, "unverified_count": 16, "free_email_unverified_count": 9, "packages": []},
         "pypi": {"official_count": 0, "unverified_count": 0, "free_email_unverified_count": 0, "packages": []},
         "flags": {"official_registry_vacuum": True, "has_any_mcp_footprint": True},
     }
-    v2_sl = _empty_v2(dnssec=True, dns_aid=False)
-    v2_sl["flags"]["live_mcp_endpoint_count"] = 1
-    v2_sl["flags"]["missing_rfc9728_count"] = 1
-    v2_sl["flags"]["cross_domain_drift_detected"] = True
-    s_sl = score_audit(BrandTarget(domain="chatdemo.com", brand="chatdemo"), [], v1_sl, v2_sl, _empty_v3())
-    assert s_sl.control_posture_score == 13
-    assert s_sl.control_posture_grade == "F"
-    assert s_sl.threat_pressure_score == 56
-    assert s_sl.threat_pressure_level == "High"
-    assert s_sl.action_posture == "Urgent Remediation"
+    v2_weak = _empty_v2(dnssec=True, dns_aid=False)
+    v2_weak["flags"]["live_mcp_endpoint_count"] = 1
+    v2_weak["flags"]["missing_rfc9728_count"] = 1
+    v2_weak["flags"]["cross_domain_drift_detected"] = True
+    s_weak = score_audit(BrandTarget(domain="weakdemo.com", brand="weakdemo"), [], v1_weak, v2_weak, _empty_v3())
+    assert s_weak.control_posture_score == 13
+    assert s_weak.control_posture_grade == "F"
+    assert s_weak.threat_pressure_score == 56
+    assert s_weak.threat_pressure_level == "High"
+    assert s_weak.action_posture == "Urgent Remediation"
 
 
 def test_single_file_html_report_two_axis_escaping_inline_code_and_zero_external_deps() -> None:
@@ -349,7 +349,7 @@ def test_anonymizer_strips_domains_and_renders_two_axis_cohort_markdown() -> Non
     assert study["overall"]["mean_control_posture"] == 13.0
     assert study["overall"]["mean_threat_pressure"] == 40.0
     md = render_study_markdown(study)
-    assert "State of External Agentic Exposure 2027" in md
+    assert "State of External Agentic Exposure" in md
     assert "2-Axis Action Posture Breakdown" in md
     assert "secretbank" not in md
     assert "ASI04" in md

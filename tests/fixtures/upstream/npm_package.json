@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-11-26T01:07:49Z",
+  "responses": [
+    {
+      "body": {
+        "_trimmed": "versions/time reduced to the latest release by record_fixtures.py",
+        "description": "Model Context Protocol implementation for TypeScript",
+        "dist-tags": {
+          "latest": "1.32.2"
+        },
+        "homepage": "https://modelcontextprotocol.io",
+        "maintainers": [
+          {
+            "email": "redacted@jspahrsummers.com",
+            "name": "jspahrsummers"
+          },
+          {
+            "email": "redacted@modelcontextprotocol.io",
+            "name": "pcarleton"
+          },
+          {
+            "email": "redacted@anthropic.com",
+            "name": "fweinberger"
+          },
+          {
+            "email": "redacted@modelcontextprotocol.io",
+            "name": "thedsp"
+          },
+          {
+            "email": "redacted@anthropic.com",
+            "name": "ochafik-ant"
+          }
+        ],
+        "name": "@modelcontextprotocol/sdk",
+        "repository": {
+          "type": "git",
+          "url": "git+https://github.com/modelcontextprotocol/typescript-sdk.git"
+        },
+        "time": {
+          "1.32.2": "2026-10-23T18:11:38.362Z",
+          "created": "2024-11-11T15:53:15.703Z",
+          "modified": "2026-10-23T18:11:38.734Z"
+        },
+        "versions": {
+          "1.32.2": {
+            "name": "@modelcontextprotocol/sdk",
+            "version": "1.32.2"
+          }
+        }
+      },
+      "content_type": "application/json",
+      "status": 200,
+      "url": "https://registry.npmjs.org/@modelcontextprotocol%2Fsdk"
+    }
+  ],
+  "source": "npm_package"
+}

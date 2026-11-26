@@ -1,0 +1,57 @@
+{
+  "recorded_at": "2026-11-26T01:07:49Z",
+  "responses": [
+    {
+      "body": {
+        "metadata": {
+          "count": 1
+        },
+        "servers": [
+          {
+            "_meta": {
+              "io.modelcontextprotocol.registry/official": {
+                "isLatest": true,
+                "publishedAt": "2026-11-25T23:10:52.921239Z",
+                "status": "active",
+                "statusChangedAt": "2026-11-25T23:10:52.921239Z",
+                "updatedAt": "2026-11-25T23:10:52.921239Z"
+              }
+            },
+            "server": {
+              "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+              "description": "Passive external scanner for MCP provenance, DNS-AID/DNSSEC, and RFC 9728 OAuth hygiene",
+              "name": "io.github.jonadas-tech/agentic-perimeter",
+              "packages": [
+                {
+                  "identifier": "agentic-perimeter",
+                  "packageArguments": [
+                    {
+                      "type": "positional",
+                      "value": "mcp"
+                    }
+                  ],
+                  "registryType": "pypi",
+                  "runtimeHint": "uvx",
+                  "transport": {
+                    "type": "stdio"
+                  },
+                  "version": "0.3.1"
+                }
+              ],
+              "repository": {
+                "source": "github",
+                "url": "https://github.com/jonadas-tech/agentic-perimeter"
+              },
+              "title": "Agentic Perimeter",
+              "version": "0.3.1"
+            }
+          }
+        ]
+      },
+      "content_type": "application/json",
+      "status": 200,
+      "url": "https://registry.modelcontextprotocol.io/v0.1/servers?search=agentic-perimeter&limit=100"
+    }
+  ],
+  "source": "mcp_registry"
+}

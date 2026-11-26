@@ -1,0 +1,440 @@
+{
+  "recorded_at": "2026-11-26T01:07:49Z",
+  "responses": [
+    {
+      "body": {
+        "AD": true,
+        "Answer": [
+          {
+            "TTL": 300,
+            "data": "172.66.147.243",
+            "name": "example.com.",
+            "type": 1
+          },
+          {
+            "TTL": 300,
+            "data": "104.20.23.154",
+            "name": "example.com.",
+            "type": 1
+          },
+          {
+            "TTL": 300,
+            "data": "a 13 2 300 1795745271 1795565271 34505 example.com. w7kt1+Flei4Mrbb8M+dTG31Ufta6ond/3i2BlbKsiBJllKHl26l1hJKXduezbhLL5b930yvemqphQ7tl90uvfw==",
+            "name": "example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 172.64.32.162.",
+        "Question": [
+          {
+            "name": "example.com.",
+            "type": 1
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=example.com&type=A&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 172.64.32.162.",
+        "Question": [
+          {
+            "name": "_agent-nx-9f8e7d.example.com.",
+            "type": 16
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_agent-nx-9f8e7d.example.com&type=TXT"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1701,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1701,
+            "data": "\\000._agent.example.com. RRSIG NSEC TYPE128",
+            "name": "_agent.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1701,
+            "data": "soa 13 2 1800 1795745173 1795565173 34505 example.com. oXTsg+6hJT8YoCe30TiP1CIUSJBmu+YHwUsmXwymPb+S4LkMVcxRNZs03FgsVH/mSe/TLmT/erW4YnI6mx1G0A==",
+            "name": "example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1701,
+            "data": "nsec 13 3 1800 1795745173 1795565173 34505 example.com. jGlHHNC43l+RXr9GZXYncUb/fa/dVpnwtbHfemxs4Rww6Zki7MVw1BiOY35AWlgm0NtOnCCa7L5ySjCTABqO5g==",
+            "name": "_agent.example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Question": [
+          {
+            "name": "_agent.example.com.",
+            "type": 64
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_agent.example.com&type=SVCB&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1800,
+            "data": "\\000._agent.example.com. RRSIG NSEC TYPE128",
+            "name": "_agent.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1800,
+            "data": "soa 13 2 1800 1795745272 1795565272 34505 example.com. X/58KaWnkQQxPGYtPqmAZzBXq3yCeXc5vjOK3BbZX0P6kb7/yARLY1lcSHtJ82R41zz90jay+E11s/+r4PXJSg==",
+            "name": "example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1800,
+            "data": "nsec 13 3 1800 1795745272 1795565272 34505 example.com. kyrVtPKvqglU2DLQBgoI2hsbNaQyOIsQEqdOF5TQxcEfhTSAUATsjYhvnmCGaxxqhofm+bFcFEbvjWT7bEp/Lw==",
+            "name": "_agent.example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 108.162.192.162.",
+        "Question": [
+          {
+            "name": "_agent.example.com.",
+            "type": 16
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_agent.example.com&type=TXT&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1800,
+            "data": "\\000._agent.example.com. RRSIG NSEC TYPE128",
+            "name": "_agent.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1800,
+            "data": "soa 13 2 1800 1795745272 1795565272 34505 example.com. 8/PG8eJV/abR/sR/pOrvK9QASTNHfHBIdiin2gNZwLOdiHm8e17d13EGlR6cWdO5bGtvC4fbCoKZzQchlEXvDQ==",
+            "name": "example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1800,
+            "data": "nsec 13 3 1800 1795745272 1795565272 34505 example.com. x89NkwatVHZmV21CxO3zHieFxMOtgCUzRsC66H5S3FrQ56ML0SxEErrSqbeg4V+Ix1ac2uXl26R7Vm/eR1gu+A==",
+            "name": "_agent.example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 108.162.195.228.",
+        "Question": [
+          {
+            "name": "_agent.example.com.",
+            "type": 33
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_agent.example.com&type=SRV&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1799,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1799,
+            "data": "soa 13 2 1800 1795745272 1795565272 34505 example.com. 2d0+Inj+23UoobWqu4EMOk3533p4pSwjTHk8Dq5O8Ll158U4toeqJKrrUOfj9wY5ejwfSv6XgnDgr6KYj+cM2A==",
+            "name": "example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1701,
+            "data": "\\000._mcp.example.com. RRSIG NSEC TYPE128",
+            "name": "_mcp.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1701,
+            "data": "nsec 13 3 1800 1795745174 1795565174 34505 example.com. LbDqmYqdgL7KQKpha5JPX03XTEX4x9suuQvS8JkAqzK/0VSCbhp8IJK5v/zVASPjj4NkvNPYm9WxGWggqqx0/w==",
+            "name": "_mcp.example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Question": [
+          {
+            "name": "_mcp.example.com.",
+            "type": 64
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_mcp.example.com&type=SVCB&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1800,
+            "data": "\\000._mcp.example.com. RRSIG NSEC TYPE128",
+            "name": "_mcp.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1800,
+            "data": "nsec 13 3 1800 1795745273 1795565273 34505 example.com. QtVFRAfzEXF2bCzM4q4i7YCtt0fnbd2D8enCDowHBVsPRHD3kx08KtLhpEnfEEqv3PrsNM0qlxysXCA6frvBYQ==",
+            "name": "_mcp.example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1800,
+            "data": "soa 13 2 1800 1795745273 1795565273 34505 example.com. 6XbfHA3yF13sbuPaQQMANa777OVHZ1lpyRFbdzZFfdjHwdXfggteHnCLFjlrKvLIzvCrQYkcbd2T0m4RInw2xQ==",
+            "name": "example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 108.162.192.162.",
+        "Question": [
+          {
+            "name": "_mcp.example.com.",
+            "type": 16
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_mcp.example.com&type=TXT&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1800,
+            "data": "\\000._mcp.example.com. RRSIG NSEC TYPE128",
+            "name": "_mcp.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1800,
+            "data": "nsec 13 3 1800 1795745273 1795565273 34505 example.com. 5hJGptLn5pNrw36ME6QONVViDIs09cBPgO7oD36vkWo3KlUdJsDEhG4Heg7oRhuscwOSjNFaKPrrF+ZYEet1Eg==",
+            "name": "_mcp.example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1800,
+            "data": "soa 13 2 1800 1795745273 1795565273 34505 example.com. XMCcrRgnXD9/IAhsypWG0plp8WHt11gh4IZ7ybkv1vH6NaesV5sNeByD0YLMrtN8sNNdVEx0F2rh9YgPVyKKoQ==",
+            "name": "example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 172.64.35.228.",
+        "Question": [
+          {
+            "name": "_mcp.example.com.",
+            "type": 33
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_mcp.example.com&type=SRV&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1800,
+            "data": "\\000._mcp._tcp.example.com. RRSIG NSEC TYPE128",
+            "name": "_mcp._tcp.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1800,
+            "data": "soa 13 2 1800 1795745273 1795565273 34505 example.com. frZVD7RmkTInSM2+55O0ggAzI+M/ycBY0rHumKm+KwHTXE85UYcL7cuYbexaUYzZ1la8aSCbG/elVxBcXSrQJg==",
+            "name": "example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1800,
+            "data": "nsec 13 4 1800 1795745273 1795565273 34505 example.com. Tc0fihogcm8Zuf9SS05YjM2behMaiLVIH2WJImtQICoIvTD1FTFFFBkr/2bqKuh2heAKJuiUkwou0WH0fQrjZQ==",
+            "name": "_mcp._tcp.example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 173.245.58.162.",
+        "Question": [
+          {
+            "name": "_mcp._tcp.example.com.",
+            "type": 33
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_mcp._tcp.example.com&type=SRV&do=1"
+    },
+    {
+      "body": {
+        "AD": true,
+        "Authority": [
+          {
+            "TTL": 1800,
+            "data": "elliott.ns.cloudflare.com. dns.cloudflare.com. 2421050422 10000 2400 604800 1800",
+            "name": "example.com.",
+            "type": 6
+          },
+          {
+            "TTL": 1800,
+            "data": "\\000._mcp._tcp.example.com. RRSIG NSEC TYPE128",
+            "name": "_mcp._tcp.example.com.",
+            "type": 47
+          },
+          {
+            "TTL": 1800,
+            "data": "soa 13 2 1800 1795745273 1795565273 34505 example.com. cGRFHpi4hbKh0CQgLxE6KHghMJhdbVu4tQCAh059IYWIT9YVU8tqn3Qp73/lUJhwgYmj35yo2wEpKMNsgeeKdg==",
+            "name": "example.com.",
+            "type": 46
+          },
+          {
+            "TTL": 1800,
+            "data": "nsec 13 4 1800 1795745273 1795565273 34505 example.com. IPBDW8NKn++JgR0GOPJ9ZmdugcjFumNXucEKh8w/5BddDyGYXfFX5tOSixqxCfnwjuNKBaZYFaJMOWyAtu5WgQ==",
+            "name": "_mcp._tcp.example.com.",
+            "type": 46
+          }
+        ],
+        "CD": false,
+        "Comment": "Response from 162.159.44.228.",
+        "Question": [
+          {
+            "name": "_mcp._tcp.example.com.",
+            "type": 16
+          }
+        ],
+        "RA": true,
+        "RD": true,
+        "Status": 0,
+        "TC": false
+      },
+      "content_type": "application/json; charset=UTF-8",
+      "status": 200,
+      "url": "https://dns.google/resolve?name=_mcp._tcp.example.com&type=TXT&do=1"
+    }
+  ],
+  "source": "doh"
+}

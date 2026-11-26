@@ -17,7 +17,7 @@
 
 ## Responsible Disclosure Policy
 
-- **Empirical Cohort Studies:** Any published benchmark dataset (such as *State of External Agentic Exposure 2027*) strips target domain/brand identifiers and sensitive live misconfiguration URLs, publishing only anonymized cohort records and aggregate statistics.
+- **Empirical Cohort Studies:** Any published benchmark dataset (such as the *State of External Agentic Exposure* November 2026 baseline) strips target domain/brand identifiers and sensitive live misconfiguration URLs, publishing only anonymized cohort records (IDs in random order, sectors with fewer than 5 brands merged) and aggregate statistics.
 - **Live Misconfigurations:** If an audit uncovers a live security misconfiguration affecting a specific organization, we follow coordinated disclosure best practices (minimum 90-day disclosure window via the organization's `security.txt`, bug bounty program, or PSIRT contact) prior to any non-anonymized public discussion.
 - **Neutral Technical Labels:** Tool outputs describe verifiable provenance facts (for example, *Unverified 3rd-Party Hosted Proxy*, *URL-Path Token Exposure*, or *Unscoped Package / Free-Email Maintainer*) and never assert malicious intent by commercial aggregators or community maintainers.
 
