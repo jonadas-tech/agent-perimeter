@@ -1,0 +1,63 @@
+name: False positive / misclassification
+description: The tool labeled something incorrectly (for example, an official package or registry entry reported as third-party).
+title: "False positive: "
+labels: ["false-positive"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the classification. Please do **not** include live security
+        misconfigurations, tokens, or private URLs here; report those through a
+        [private security advisory](https://github.com/jonadas-tech/agentic-perimeter/security/advisories/new).
+  - type: input
+    id: version
+    attributes:
+      label: agentic-perimeter version
+      description: Output of `uvx agentic-perimeter --version` (or the version shown in the report header).
+      placeholder: "0.3.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: rule
+    attributes:
+      label: Which finding is wrong?
+      options:
+        - Official Registry Vacuum
+        - Unverified 3rd-Party Hosted MCP Proxy
+        - URL-Path Token Exposure
+        - Unverified Package / Free-Email Maintainer
+        - Unverified package collision
+        - Missing RFC 9728 metadata
+        - Broad OAuth scope / cross-domain drift
+        - DNSSEC / DNS-AID
+        - Lookalike domain (active endpoint or phishing warning)
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: rule_id
+    attributes:
+      label: Rule ID (if shown)
+      description: For example `v1_unverified_3p_hosted_proxy` (from the JSON `rule_id` field or the SARIF result).
+  - type: textarea
+    id: subject
+    attributes:
+      label: What was misclassified
+      description: The public identifier the tool reported (registry entry name, package name, hostname, or domain).
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Why the label is wrong
+      description: Public evidence of the correct classification, for example a link showing the package is published by the brand's own organization, or the brand's documentation listing the endpoint.
+    validations:
+      required: true
+  - type: checkboxes
+    id: relationship
+    attributes:
+      label: Your relationship to the subject
+      options:
+        - label: I work for or represent the brand
+        - label: I maintain the package or service
+        - label: Neither (independent report)

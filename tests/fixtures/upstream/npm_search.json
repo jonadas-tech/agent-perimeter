@@ -1,0 +1,90 @@
+{
+  "recorded_at": "2026-11-26T01:07:49Z",
+  "responses": [
+    {
+      "body": {
+        "objects": [
+          {
+            "dependents": "87188",
+            "downloads": {
+              "monthly": 380464357,
+              "weekly": 93196652
+            },
+            "flags": {
+              "insecure": 0
+            },
+            "package": {
+              "date": "2026-10-23T18:11:38.362Z",
+              "description": "Model Context Protocol implementation for TypeScript",
+              "keywords": [
+                "modelcontextprotocol",
+                "mcp"
+              ],
+              "license": "MIT",
+              "links": {
+                "bugs": "https://github.com/modelcontextprotocol/typescript-sdk/issues",
+                "homepage": "https://modelcontextprotocol.io",
+                "npm": "https://www.npmjs.com/package/@modelcontextprotocol/sdk",
+                "repository": "git+https://github.com/modelcontextprotocol/typescript-sdk.git"
+              },
+              "maintainers": [
+                {
+                  "email": "redacted@jspahrsummers.com",
+                  "username": "jspahrsummers"
+                },
+                {
+                  "email": "redacted@modelcontextprotocol.io",
+                  "username": "pcarleton"
+                },
+                {
+                  "email": "redacted@anthropic.com",
+                  "username": "fweinberger"
+                },
+                {
+                  "email": "redacted@modelcontextprotocol.io",
+                  "username": "thedsp"
+                },
+                {
+                  "email": "redacted@anthropic.com",
+                  "username": "ochafik-ant"
+                }
+              ],
+              "name": "@modelcontextprotocol/sdk",
+              "publisher": {
+                "actor": {
+                  "email": "redacted@jspahrsummers.com",
+                  "name": "jspahrsummers",
+                  "type": "user"
+                },
+                "email": "redacted@github.com",
+                "trustedPublisher": {
+                  "id": "github",
+                  "oidcConfigId": "dbb65bf6-af49-4757-88a7-122fb1877ae5"
+                },
+                "username": "GitHub Actions"
+              },
+              "sanitized_name": "@modelcontextprotocol/sdk",
+              "version": "1.32.2"
+            },
+            "score": {
+              "detail": {
+                "maintenance": 1,
+                "popularity": 1,
+                "quality": 1
+              },
+              "final": 2469.003
+            },
+            "searchScore": 2469.003,
+            "updated": "2026-11-25T10:41:01.187Z"
+          }
+        ],
+        "time": "2026-11-26T01:06:12.012Z",
+        "total": 185747
+      },
+      "content_type": "application/json",
+      "status": 200,
+      "url": "https://registry.npmjs.org/-/v1/search?text=%40modelcontextprotocol%2Fsdk&size=1"
+    }
+  ],
+  "source": "npm_search"
+}

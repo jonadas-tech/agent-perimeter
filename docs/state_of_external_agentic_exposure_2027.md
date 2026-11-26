@@ -1,6 +1,9 @@
-# State of External Agentic Exposure 2027 — Anonymized Empirical Summary
+# State of External Agentic Exposure, November 2026 Baseline — Anonymized Empirical Summary
 
-**Narrative study (canonical):** [The MCP Servers You Didn't Ship](https://www.jonadas.com/writing/research/state-of-external-agentic-exposure-2027) on jonadas.com  
+*The file name, dataset files, and Zenodo record keep the original "2027" identifier because PyPI metadata and the archived DOI link to them.*
+
+**Narrative study (canonical):** [The MCP Servers You Didn't Ship](https://www.jonadas.com/writing/research/state-of-external-agentic-exposure-2026-baseline) on jonadas.com  
+**Limitations & false positives:** [LIMITATIONS.md](LIMITATIONS.md)  
 **Dataset Size:** 100 public brands (50 traditional Fortune Global 500 / S&P 500 enterprises + 50 SaaS/Fintech/Cloud/AI)  
 **Scan Window:** `2026-11-21T12:02:08Z` to `2026-11-21T12:13:13Z` (`665.25s`)  
 **Tool & Scoring Model:** `agentic-perimeter` v0.1.0 · `2-axis-v1` (100% passive, read-only public APIs, DoH, CT/TLS SAN)  
@@ -23,7 +26,7 @@
 | Unverified npm or PyPI MCP package claiming brand | 54 (54.0%) | 7 (14.0%) | 47 (94.0%) |
 | **Free-Email Maintainer** on unverified MCP package | 50 (50.0%) | 5 (10.0%) | 45 (90.0%) |
 | Live first-party `mcp.*` / `agents.*` endpoint | 29 (29.0%) | 2 (4.0%) | 27 (54.0%) |
-| Missing RFC 9728 metadata (among live MCP endpoints) | 4/29 (13.8%) | 2/2 (100.0%) | 2/27 (7.4%) |
+| Missing RFC 9728 metadata (among live MCP endpoints) | 4/29 (13.8%) | 2/2 (too few to compare) | 2/27 (7.4%) |
 | Broad OAuth Scope Declaration | 6 (6.0%) | 0 (0.0%) | 6 (12.0%) |
 | Cross-Domain Perimeter Drift | 3 (3.0%) | 0 (0.0%) | 3 (6.0%) |
 | Apex DNSSEC validated (`AD=true`) | 18 (18.0%) | 6 (12.0%) | 12 (24.0%) |
@@ -65,22 +68,20 @@
 
 ## 4. Breakdown by Industry Sector
 
+Sectors with fewer than 5 brands are merged (Cybersecurity into Cloud, DevTools & Security; Insurance, Aerospace & Auto, Logistics & Travel, and Telecom & Media into Other traditional sectors) so no published cell describes a short list of identifiable companies.
+
 | Sector | Graded / Total | Mean Posture (Graded) | Mean Threat Pressure | Official Registry | Registry Vacuum | 3P Hosted Proxy | Free-Email Pkg | DNSSEC |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | AI & Data Platforms | 8/8 | 52.8 | 41.2 | 37.5% | 62.5% | 50.0% | 100.0% | 25.0% |
-| Aerospace & Auto | 1/3 | 0.0 | 4.0 | 0.0% | 33.3% | 0.0% | 0.0% | 0.0% |
-| Banking & Finance | 3/13 | 51.3 | 5.0 | 15.4% | 7.7% | 7.7% | 7.7% | 15.4% |
-| Cloud & DevTools | 13/13 | 75.3 | 41.8 | 84.6% | 15.4% | 53.8% | 92.3% | 15.4% |
-| Commerce & Platforms | 4/5 | 13.0 | 45.0 | 0.0% | 80.0% | 80.0% | 80.0% | 20.0% |
-| Cybersecurity | 3/3 | 67.0 | 25.7 | 66.7% | 33.3% | 0.0% | 66.7% | 33.3% |
-| Energy & Industrial | 1/7 | 66.0 | 2.9 | 14.3% | 0.0% | 14.3% | 0.0% | 28.6% |
+| Banking & Finance | 3/13 | n<5 | 5.0 | 15.4% | 7.7% | 7.7% | 7.7% | 15.4% |
+| Cloud, DevTools & Security | 16/16 | 73.8 | 38.8 | 81.2% | 18.8% | 43.8% | 87.5% | 18.8% |
+| Commerce & Platforms | 4/5 | n<5 | 45.0 | 0.0% | 80.0% | 80.0% | 80.0% | 20.0% |
+| Energy & Industrial | 1/7 | n<5 | 2.9 | 14.3% | 0.0% | 14.3% | 0.0% | 28.6% |
 | Enterprise SaaS | 14/14 | 46.6 | 49.5 | 28.6% | 71.4% | 92.9% | 92.9% | 35.7% |
 | Fintech & Payments | 6/7 | 50.8 | 43.7 | 28.6% | 57.1% | 57.1% | 85.7% | 14.3% |
 | Healthcare & Pharma | 0/6 | N/A | 0.0 | 0.0% | 0.0% | 0.0% | 0.0% | 16.7% |
-| Insurance | 0/3 | N/A | 0.0 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
-| Logistics & Travel | 0/3 | N/A | 0.0 | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
-| Retail & Consumer | 4/11 | 0.0 | 14.5 | 0.0% | 36.4% | 36.4% | 27.3% | 0.0% |
-| Telecom & Media | 1/4 | 0.0 | 10.0 | 0.0% | 25.0% | 25.0% | 25.0% | 25.0% |
+| Other traditional sectors | 2/13 | n<5 | 4.0 | 0.0% | 15.4% | 7.7% | 7.7% | 7.7% |
+| Retail & Consumer | 4/11 | n<5 | 14.5 | 0.0% | 36.4% | 36.4% | 27.3% | 0.0% |
 
 ## 5. Full Unverified Package Static Census (N=632 / 642 Inspected In Memory)
 
@@ -95,7 +96,7 @@ Beyond registry and perimeter metadata, we performed a **100% passive, read-only
 | **Dormant placeholder stubs** (`coming-soon` / `89-byte` stubs) | **22** | **3.5%** | Latent namespace-squat inventory spanning `13` Top-100 brands |
 | **Unrelated CLI `bin` name registration** | **11** | **1.7%** | Includes cross-brand CLI binary shadowing in `PATH` |
 | **Anti-bot / TLS evasion libraries** (`Patchright`, `curl_cffi` Chrome TLS impersonation) | **6** | **0.9%** | Wrappers automating consumer/enterprise web portals behind bot management |
-| **Stealth session-cookie / admin-approval bypass** (`xoxc`/`xoxd`) | **5** | **0.8%** | Includes a `229k+` dl/mo unscoped wrapper explicitly bypassing workspace admin approval |
+| **Stealth session-cookie / admin-approval bypass** (browser session tokens) | **5** | **0.8%** | Includes one of the most-downloaded wrappers in the census, which advertises working without workspace admin approval |
 | **Verified hidden prompt-injection / Unicode Tag payloads** | **0** | **0.0%** | Signature check only (Unicode Tag characters + known injection phrasings in package files; 1 raw regex hit manually excluded as a false positive). Cannot see novel phrasings or tool descriptions served at runtime by remote servers. Within what is statically inspectable, the measurable risk is classical supply-chain and governance failure |
 
 **Maintainer Blast-Radius Concentration:** **`29` individual maintainer accounts** each publish unverified MCP packages targeting **3 to 23 distinct Top-100 brands**. The top two accounts alone maintain `24` packages across `23` Top-100 brands and `18` packages across `18` Top-100 brands, illustrating that compromise of a single third-party maintainer account cascades across dozens of enterprise brands simultaneously. Separately, **`5` of `50` Tech/SaaS brands (`10.0%`)** already have exact unscoped `mcp-server-<brand>` names replaced with npm Security `0.0.1-security` holding packages.

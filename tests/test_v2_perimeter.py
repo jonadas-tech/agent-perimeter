@@ -152,17 +152,17 @@ def test_dns_aid_ignores_wildcard_spf_txt_and_wildcard_cname() -> None:
 
 
 def test_f11_v2_confirmed_mcp_signal_rejects_gateway_400_spa_html_and_sso_405() -> None:
-    # F11a: Legacy gateway 400 error without MCP/JSON-RPC signal (e.g. mcp.wellsfargo.com) -> False
-    r_wf_root = _resp("https://mcp.bank.com/", '{"errors": [{"error_code": "400-025"}]}', status=400)
-    r_wf_mcp = _resp("https://mcp.bank.com/mcp", '{"errors": [{"error_code": "400-025"}]}', status=400)
-    assert v2mod._has_confirmed_mcp_signal("mcp.bank.com", r_wf_root, r_wf_mcp, None, {}, None) is False
+    # F11a: Legacy gateway 400 error without MCP/JSON-RPC signal -> False
+    r_gw_root = _resp("https://mcp.bank.com/", '{"errors": [{"error_code": "400-025"}]}', status=400)
+    r_gw_mcp = _resp("https://mcp.bank.com/mcp", '{"errors": [{"error_code": "400-025"}]}', status=400)
+    assert v2mod._has_confirmed_mcp_signal("mcp.bank.com", r_gw_root, r_gw_mcp, None, {}, None) is False
 
-    # F11b: Multi-tenant React SPA returning 200 text/html on /mcp (e.g. mcp.grafana.net) -> False
+    # F11b: Multi-tenant React SPA returning 200 text/html on /mcp -> False
     r_spa_root = _resp("https://mcp.dash.net/", "<html><title>Dashboard</title></html>", status=200, headers={"content-type": "text/html; charset=UTF-8"})
     r_spa_mcp = _resp("https://mcp.dash.net/mcp", "<html><title>Dashboard</title></html>", status=200, headers={"content-type": "text/html; charset=UTF-8"})
     assert v2mod._has_confirmed_mcp_signal("mcp.dash.net", r_spa_root, r_spa_mcp, None, {}, None) is False
 
-    # F11c: Multi-tenant SSO org returning 405 E0000022 (e.g. mcp.okta.com) -> False
+    # F11c: Multi-tenant SSO org returning 405 E0000022 -> False
     r_sso_root = HttpResponse(
         url="https://mcp.sso.com/",
         final_url="https://mcp.sso.com/app/UserHome?iss=https://mcp.sso.com",
@@ -173,7 +173,7 @@ def test_f11_v2_confirmed_mcp_signal_rejects_gateway_400_spa_html_and_sso_405() 
     r_sso_mcp = _resp("https://mcp.sso.com/mcp", '{"errorCode":"E0000022","errorSummary":"Method not supported"}', status=405)
     assert v2mod._has_confirmed_mcp_signal("mcp.sso.com", r_sso_root, r_sso_mcp, None, {}, None) is False
 
-    # True positives preserved: 401 non-HTML /mcp (e.g. mcp.eu.postman.com / mcp.visa.com) and 405 root (mcp.shopify.com)
+    # True positives preserved: 401 non-HTML /mcp and 405 root
     r_tp_root = _resp("https://mcp.shop.com/", "", status=405)
     r_tp_mcp = _resp("https://mcp.shop.com/mcp", "", status=404)
     assert v2mod._has_confirmed_mcp_signal("mcp.shop.com", r_tp_root, r_tp_mcp, None, {}, None) is True

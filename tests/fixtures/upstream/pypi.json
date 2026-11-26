@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-11-26T01:07:49Z",
+  "responses": [
+    {
+      "body": {
+        "_trimmed": "releases/urls dropped by record_fixtures.py",
+        "info": {
+          "author": "Jonadas Techio",
+          "author_email": null,
+          "home_page": null,
+          "maintainer": null,
+          "maintainer_email": null,
+          "name": "agentic-perimeter",
+          "package_url": "https://pypi.org/project/agentic-perimeter/",
+          "project_urls": {
+            "Documentation": "https://github.com/jonadas-tech/agentic-perimeter/blob/main/docs/state_of_external_agentic_exposure_2027.md",
+            "Homepage": "https://github.com/jonadas-tech/agentic-perimeter",
+            "Issues": "https://github.com/jonadas-tech/agentic-perimeter/issues",
+            "Repository": "https://github.com/jonadas-tech/agentic-perimeter"
+          },
+          "summary": "Passive external attack surface scanner for MCP supply-chain provenance, agent discovery, and DNS-AID/OAuth perimeter hygiene.",
+          "version": "0.3.1"
+        }
+      },
+      "content_type": "application/json",
+      "status": 200,
+      "url": "https://pypi.org/pypi/agentic-perimeter/json"
+    }
+  ],
+  "source": "pypi"
+}

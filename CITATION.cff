@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: "agentic-perimeter: Passive External Agentic Exposure & Brand Provenance Scanner"
-message: "If you use this software or the anonymized State of External Agentic Exposure 2027 datasets in your research, please cite it using the metadata below."
+message: "If you use this software or the anonymized State of External Agentic Exposure datasets (November 2026 baseline; files named *_2027_*) in your research, please cite it using the metadata below."
 type: software
 authors:
   - family-names: Techio

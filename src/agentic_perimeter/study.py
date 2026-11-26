@@ -1,4 +1,4 @@
-"""Anonymizer and statistical study aggregator for 'State of External Agentic Exposure 2027'.
+"""Anonymizer and statistical study aggregator for the 'State of External Agentic Exposure' studies.
 
 Supports the 2-Axis Scoring Model (`2-axis-v1`):
   - Axis 1: First-Party Control Posture (strictly computed over graded brands vs. N/A Baseline)
@@ -8,8 +8,23 @@ Supports the 2-Axis Scoring Model (`2-axis-v1`):
 
 from __future__ import annotations
 
+import random
 from collections import Counter
 from typing import Any, Dict, List, Optional
+
+# Published per-record sector labels and sector tables never describe fewer than this many brands.
+MIN_CELL_SIZE = 5
+
+# Preferred merge targets for sectors below MIN_CELL_SIZE (anything not listed is pooled per cohort).
+SMALL_SECTOR_MERGES: Dict[str, str] = {
+    "Cybersecurity": "Cloud, DevTools & Security",
+    "Cloud & DevTools": "Cloud, DevTools & Security",
+}
+
+_COHORT_OTHER_LABELS = {
+    "fortune_traditional": "Other traditional sectors",
+    "saas_ai_fintech": "Other technology sectors",
+}
 
 
 def _pct(num: int, den: int) -> float:
@@ -30,20 +45,58 @@ def _mean(vals: List[int]) -> Optional[float]:
     return round(sum(vals) / len(vals), 1)
 
 
-def anonymize_batch_results(batch_data: Dict[str, Any]) -> Dict[str, Any]:
+def _cohort_prefix(cohort: str) -> str:
+    return "ENT" if cohort == "fortune_traditional" else ("TECH" if cohort == "saas_ai_fintech" else "ORG")
+
+
+def coarsen_small_sectors(records: List[Dict[str, Any]], min_cell: int = MIN_CELL_SIZE) -> List[Dict[str, Any]]:
+    """Relabel sectors so every published (cohort, sector) cell holds at least `min_cell` records.
+
+    The input brand list is public, so a sector with three brands would let a reader map
+    each anonymized record back to a short list of companies.
+    """
+    def cell_sizes() -> Counter:
+        return Counter((r["cohort"], r["sector"]) for r in records)
+
+    sizes = cell_sizes()
+    small = {sector for (_cohort, sector), n in sizes.items() if n < min_cell}
+    merge_targets = {SMALL_SECTOR_MERGES[s] for s in small if s in SMALL_SECTOR_MERGES}
+    for r in records:
+        target = SMALL_SECTOR_MERGES.get(r["sector"])
+        if target in merge_targets:
+            r["sector"] = target
+
+    sizes = cell_sizes()
+    for r in records:
+        if sizes[(r["cohort"], r["sector"])] < min_cell:
+            r["sector"] = _COHORT_OTHER_LABELS.get(r["cohort"], "Other sectors")
+    return records
+
+
+def assign_random_anon_ids(records: List[Dict[str, Any]], rng: Optional[random.Random] = None) -> List[Dict[str, Any]]:
+    """Assign ENT-/TECH- identifiers in random order so record IDs cannot be zipped against the input list."""
+    rng = rng or random.SystemRandom()
+    by_prefix: Dict[str, List[Dict[str, Any]]] = {}
+    for r in records:
+        by_prefix.setdefault(_cohort_prefix(r["cohort"]), []).append(r)
+    for prefix, rows in by_prefix.items():
+        rng.shuffle(rows)
+        for i, r in enumerate(rows, start=1):
+            r["anon_id"] = f"{prefix}-{i:03d}"
+    return sorted(records, key=lambda r: r["anon_id"])
+
+
+def anonymize_batch_results(batch_data: Dict[str, Any], rng: Optional[random.Random] = None) -> Dict[str, Any]:
     """Strip brand/domain identifiers and sensitive live URLs from batch scan results,
     producing a responsible-disclosure-safe empirical dataset and aggregated cohort metrics.
     """
     reports: List[Dict[str, Any]] = batch_data.get("reports") or []
-    cohort_counters: Dict[str, int] = {}
     anon_records: List[Dict[str, Any]] = []
 
     for rep in reports:
         target = rep.get("target") or {}
         cohort = str(target.get("cohort") or "custom")
-        prefix = "ENT" if cohort == "fortune_traditional" else ("TECH" if cohort == "saas_ai_fintech" else "ORG")
-        cohort_counters[prefix] = cohort_counters.get(prefix, 0) + 1
-        anon_id = f"{prefix}-{cohort_counters[prefix]:03d}"
+        anon_id = ""
 
         v1 = rep.get("vector1") or {}
         v1_flags = v1.get("flags") or {}
@@ -110,6 +163,14 @@ def anonymize_batch_results(batch_data: Dict[str, Any]) -> Dict[str, Any]:
                 },
             }
         )
+
+    anon_records = coarsen_small_sectors(anon_records)
+    anon_records = assign_random_anon_ids(anon_records, rng)
+    return build_study_from_records(anon_records, batch_data)
+
+
+def build_study_from_records(anon_records: List[Dict[str, Any]], batch_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Aggregate overall, cohort, and sector statistics from already-anonymized records."""
 
     def _summarize_slice(rows: List[Dict[str, Any]]) -> Dict[str, Any]:
         n = len(rows)
@@ -208,13 +269,21 @@ def anonymize_batch_results(batch_data: Dict[str, Any]) -> Dict[str, Any]:
     by_cohort = {
         c: _summarize_slice([r for r in anon_records if r["cohort"] == c]) for c in cohorts_present
     }
-    sectors_present = sorted({r["sector"] for r in anon_records})
+    sector_sizes = Counter(r["sector"] for r in anon_records)
     by_sector = {
-        s: _summarize_slice([r for r in anon_records if r["sector"] == s]) for s in sectors_present
+        s: _summarize_slice([r for r in anon_records if r["sector"] == s])
+        for s in sorted(sector_sizes)
+        if sector_sizes[s] >= MIN_CELL_SIZE
     }
+    suppressed_sector_records = sum(n for n in sector_sizes.values() if n < MIN_CELL_SIZE)
+    for sdata in by_sector.values():
+        if 0 < sdata.get("graded_posture_count", 0) < MIN_CELL_SIZE:
+            sdata["mean_control_posture"] = None
+            sdata["median_control_posture"] = None
+            sdata["control_posture_suppressed"] = True
 
     return {
-        "study_title": "State of External Agentic Exposure 2027",
+        "study_title": batch_data.get("study_title") or "State of External Agentic Exposure",
         "schema_version": "2.0",
         "scoring_model": "2-axis-v1",
         "tool_version": batch_data.get("tool_version"),
@@ -228,6 +297,12 @@ def anonymize_batch_results(batch_data: Dict[str, Any]) -> Dict[str, Any]:
             "replaced with anonymized cohort identifiers (ENT-xxx, TECH-xxx) in accordance with "
             "responsible disclosure policy."
         ),
+        "anonymization": {
+            "id_assignment": "random order within each cohort (not input-list order)",
+            "min_cell_size": MIN_CELL_SIZE,
+            "sector_coarsening": "sectors with fewer than min_cell_size brands are merged into larger groups",
+            "suppressed_sector_records": suppressed_sector_records,
+        },
         "overall": _summarize_slice(anon_records),
         "by_cohort": by_cohort,
         "by_sector": by_sector,
@@ -335,7 +410,11 @@ def render_study_markdown(study: Dict[str, Any]) -> str:
     for sec, sdata in sorted((study.get("by_sector") or {}).items()):
         sp = sdata.get("prevalence") or {}
         graded_str = f"{sdata.get('graded_posture_count', 0)}/{sdata.get('count', 0)}"
-        posture_str = fmt_opt(sdata.get("mean_control_posture"))
+        posture_str = (
+            f"n<{MIN_CELL_SIZE}"
+            if sdata.get("control_posture_suppressed")
+            else fmt_opt(sdata.get("mean_control_posture"))
+        )
         threat_str = str(sdata.get("mean_threat_pressure", 0.0))
         sector_lines.append(
             f"| {sec} | {graded_str} | {posture_str} | {threat_str} | "
